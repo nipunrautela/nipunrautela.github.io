@@ -7,7 +7,16 @@ $(function () {
     setInterval(() => {
         $typeSpan
           .typistRemove(roles[count++ % roles.length].length)
-          .typistPause(1000)
-          .typistAdd(roles[count % roles.length]);
-      }, 4000); 
+          .typistPause(800)
+          .typistAdd(roles[count % roles.length])
+          .typistPause(1000);
+      }, 3000);
+    $(".navbar").hide();
+    $(window).scroll(function () {
+    if ($(window).scrollTop() > 40) {
+        $(".navbar").slideDown(100);
+    } else {
+        $(".navbar").slideUp(100);
+    }
+    });
 });
