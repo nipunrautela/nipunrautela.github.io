@@ -2,6 +2,10 @@ html,
 body {
   height: 100%;
 }
+body,
+input {
+  font-family: "Montserrat";
+}
 #intro {
     position: relative;
     height: 100%;
