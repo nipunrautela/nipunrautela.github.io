@@ -11,6 +11,7 @@ input {
     height: 100%;
     overflow: hidden;
     z-index: 1;
+    background-image: url('./background.jpg');
 }
 #intro::after {
   content: "";
@@ -21,14 +22,6 @@ input {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 2;
-}
-#intro img {
-  display: block;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 100%;
-  min-height: 100%;
 }
 #intro .content {
   text-align: center;
@@ -43,7 +36,7 @@ input {
 #intro .content h1 {
   margin: 20px 0;
   font-size: 5em;
-  font-weight: 300;
+  font-weight: 400;
 }
 #intro .content h2 {
   padding: 0;
