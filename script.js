@@ -13,10 +13,16 @@ $(function () {
       }, 4000);
     $(".navbar").hide();
     $(window).scroll(function () {
-        if ($(window).scrollTop() > 500) {
-            $(".navbar").slideDown(200)
-        } else {
-            $(".navbar").slideUp(100);
+        if ($(window).scrollTop() > 500 && $(window).scrollTop() < 520) {
+            $(".navbar")
+            .css('opacity', 0)
+            .slideDown(200)
+            .animate(
+              { opacity: 1 },
+              { queue: false, duration: 100}
+            );
+        } else if($(window).scrollTop() < 500) {
+            $(".navbar").slideUp(300);
         }
         //for about me
         if ($(window).scrollTop() > 120) {
@@ -26,5 +32,15 @@ $(function () {
             $("#about h2").fadeOut(100);
             $("#about p").slideUp(300)
         }
+    });
+    $(".go-down a").click(function (e) {
+      e.preventDefault();
+      var top = $($(this).attr("href")) .position().top;
+      $("html, body").animate(
+        {
+          scrollTop: top
+        },
+        1000
+      );
     });
 });
