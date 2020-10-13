@@ -13,34 +13,76 @@ $(function () {
       }, 4000);
     $(".navbar").hide();
     $(window).scroll(function () {
-        if ($(window).scrollTop() > 500 && $(window).scrollTop() < 520) {
-            $(".navbar")
-            .css('opacity', 0)
-            .slideDown(200)
-            .animate(
-              { opacity: 1 },
-              { queue: false, duration: 100}
-            );
-        } else if($(window).scrollTop() < 500) {
+        if ($(window).scrollTop() > 200) {
+            $(".navbar").slideDown(300)
+        }
+        else {
             $(".navbar").slideUp(300);
         }
-        //for about me
-        if ($(window).scrollTop() > 120) {
-            $("#about h2").fadeIn(600);
-            $("#about p").slideDown(500)
-        } else {
-            $("#about h2").fadeOut(100);
-            $("#about p").slideUp(300)
+
+        if ($(window).scrollTop() < 800) {
+            $(".go-about").removeAttr('style');
+            $(".go-top").css({ 
+                "color": "#0cf",
+                "border-bottom": "1px solid #0cf"
+            })
+            $(".nav-item.nav-link").css({
+                "font-weight": "500",
+                "transition": "all 0.2s linear",
+                "transform": "scale(1)"
+            })
+        }
+        else if ($(window).scrollTop() < 1600) {
+            $(".go-top").removeAttr('style');
+            $(".go-about").css({ 
+                "color": "#0cf",
+                "border-bottom": "1px solid #0cf",
+            })
+            $(".nav-item.nav-link").css({
+                "font-weight": "500",
+                "transition": "all 0.2s linear",
+                "transform": "scale(1)"
+            })
         }
     });
     $(".go-down a").click(function (e) {
-      e.preventDefault();
-      var top = $($(this).attr("href")) .position().top;
-      $("html, body").animate(
+        e.preventDefault();
+        var top = $($(this).attr("href")).position().top;
+        $("html, body").animate(
         {
-          scrollTop: top
+            scrollTop: top
         },
         1000
-      );
+        );
+    });
+    $(".go-top").click(function (e) {
+        e.preventDefault();
+        var top = $("#intro").position().top;
+        $("html, body").animate(
+        {
+            scrollTop: top
+        },
+        1000
+        );
+    });
+    $(".go-about").click(function (e) {
+        e.preventDefault();
+        var top = $("#about").position().top;
+        $("html, body").animate(
+        {
+            scrollTop: top
+        },
+        1000
+        );
+    });
+    $(".go-experience").click(function (e) {
+        e.preventDefault();
+        var top = $("#experience").position().top;
+        $("html, body").animate(
+        {
+            scrollTop: top
+        },
+        1000
+        );
     });
 });
