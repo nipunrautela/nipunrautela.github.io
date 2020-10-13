@@ -7,16 +7,24 @@ $(function () {
     setInterval(() => {
         $typeSpan
           .typistRemove(roles[count++ % roles.length].length)
-          .typistPause(800)
+          .typistPause(100)
           .typistAdd(roles[count % roles.length])
-          .typistPause(1000);
-      }, 3000);
+          .typistPause(800);
+      }, 4000);
     $(".navbar").hide();
     $(window).scroll(function () {
-        if ($(window).scrollTop() > 40) {
-            $(".navbar").slideDown(200);
+        if ($(window).scrollTop() > 500) {
+            $(".navbar").slideDown(200)
         } else {
             $(".navbar").slideUp(100);
+        }
+        //for about me
+        if ($(window).scrollTop() > 120) {
+            $("#about h2").fadeIn(600);
+            $("#about p").slideDown(500)
+        } else {
+            $("#about h2").fadeOut(100);
+            $("#about p").slideUp(300)
         }
     });
 });

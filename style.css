@@ -6,12 +6,22 @@ body,
 input {
   font-family: "Montserrat";
 }
+.navbar a {
+    font-size: 1.5em;
+    margin-left: 5%;
+    padding: 5px;
+    border-bottom: 2px solid #000;
+    border-radius: 25;
+}
+.navbar {
+    opacity: 80%;
+}
 #intro {
     position: relative;
     height: 100%;
     overflow: hidden;
     z-index: 1;
-    background-image: url('./background.jpg');
+    background-image: url('./background-2.jpg');
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
@@ -50,6 +60,10 @@ input {
   font-size: 1.5em;
   font-weight: 300;
 }
+#intro .content h2 span {
+    font-size: 1em;
+    font-weight: 800;
+}
 #intro .content .socials {
   padding: 35px 0;
 }
@@ -73,12 +87,36 @@ input {
   border: 2px solid #000;
   transform: scale(1.2);
 }
-section {
-    margin-bottom: 25px;
+#about {
+    height: 100;
+    position: relative;
+    overflow: hidden;
+    background-image: url("./aboutme_background.gif");
+    z-index: 1;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+#about .container-fluid {
+    margin-left: 17%;
+}
+#about h2 {
+    color: #fff;
+    font-weight: 500;
+    font-size: 3em;
+    margin-bottom: 4%;
+}
+#about p {
+    color: #fd6;
+    padding-left: 45%;
+    text-align: justify;
+    font-size: 1.5em;
 }
 section h2 {
   text-align: center;
   line-height: 1;
+  padding-top: 10%;
   padding-bottom: 10px;
-  border-bottom: 2px solid #ccf;
+  border-bottom: 2px solid #af0;
 }
