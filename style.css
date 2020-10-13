@@ -7,6 +7,9 @@ body,
 input {
   font-family: "Montserrat";
 }
+.navbar {
+  background: url("./navbar_background.jpg");
+}
 .navbar-brand{
     font-size: 1.5em;
     margin-left: 5%;
@@ -20,6 +23,7 @@ input {
 }
 .nav-item.nav-link {
   font-weight: 500;
+  font-size: 1.1em;
   transition: all 0.2s linear;
   transform: scale(1);
 }

@@ -47,7 +47,7 @@ $(function () {
     });
     $(".go-down a").click(function (e) {
         e.preventDefault();
-        var top = $($(this).attr("href")).position().top;
+        var top = $($(this).attr("href")).position().top - 60;
         $("html, body").animate(
         {
             scrollTop: top
