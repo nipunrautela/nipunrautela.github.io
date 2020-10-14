@@ -9,7 +9,6 @@ $(function () {
           .typistRemove(roles[count++ % roles.length].length)
           .typistPause(100)
           .typistAdd(roles[count % roles.length])
-          .typistPause(800);
       }, 4000);
     $(".navbar").hide();
     $(window).scroll(function () {
@@ -20,7 +19,7 @@ $(function () {
             $(".navbar").slideUp(300);
         }
 
-        if ($(window).scrollTop() < 800) {
+        if ($(window).scrollTop() < 400) {
             $(".go-about").removeAttr('style');
             $(".go-top").css({ 
                 "color": "#0cf",
@@ -32,9 +31,35 @@ $(function () {
                 "transform": "scale(1)"
             })
         }
-        else if ($(window).scrollTop() < 1600) {
+        else if ($(window).scrollTop() < 1700) {
             $(".go-top").removeAttr('style');
+            $(".go-experience").removeAttr('style');
             $(".go-about").css({ 
+                "color": "#0cf",
+                "border-bottom": "1px solid #0cf",
+            })
+            $(".nav-item.nav-link").css({
+                "font-weight": "500",
+                "transition": "all 0.2s linear",
+                "transform": "scale(1)"
+            })
+        }
+        else if ($(window).scrollTop() < 2500) {
+            $(".go-about").removeAttr('style');
+            $(".go-contact").removeAttr('style');
+            $(".go-experience").css({ 
+                "color": "#0cf",
+                "border-bottom": "1px solid #0cf",
+            })
+            $(".nav-item.nav-link").css({
+                "font-weight": "500",
+                "transition": "all 0.2s linear",
+                "transform": "scale(1)"
+            })
+        }
+        else if ($(window).scrollTop() < 3500) {
+            $(".go-experience").removeAttr('style');
+            $(".go-contact").css({ 
                 "color": "#0cf",
                 "border-bottom": "1px solid #0cf",
             })
@@ -78,6 +103,16 @@ $(function () {
     $(".go-experience").click(function (e) {
         e.preventDefault();
         var top = $("#experience").position().top;
+        $("html, body").animate(
+        {
+            scrollTop: top
+        },
+        1000
+        );
+    });
+    $(".go-contact").click(function (e) {
+        e.preventDefault();
+        var top = $("#contact").position().top;
         $("html, body").animate(
         {
             scrollTop: top
