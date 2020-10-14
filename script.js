@@ -44,7 +44,7 @@ $(function () {
                 "transform": "scale(1)"
             })
         }
-        else if ($(window).scrollTop() < 2500) {
+        else if ($(window).scrollTop() < 2700) {
             $(".go-about").removeAttr('style');
             $(".go-contact").removeAttr('style');
             $(".go-experience").css({ 
