@@ -13,14 +13,29 @@ interface Props {
 const { entries, variant = "default" } = Astro.props;
 ---
 
-<ol class="relative space-y-10 border-l border-border pl-7 sm:pl-9">
+{/*
+  The rule is a pseudo-element rather than a border so it can draw itself
+  downward on reveal — see the [data-draw-line] rules in global.css.
+*/}
+<ol
+  class="relative space-y-12 pl-7 before:absolute before:top-0 before:bottom-0 before:left-0 before:w-px before:bg-gradient-to-b before:from-accent before:via-border-strong before:to-transparent sm:pl-9"
+  data-reveal
+  data-draw-line
+>
   {
-    entries.map(({ data }) => (
+    entries.map(({ data }, index) => (
       <li class="relative">
         <span
-          class="absolute -left-[calc(1.75rem+4.5px)] top-1.5 size-[9px] rounded-full border-2 border-bg bg-border-strong sm:-left-[calc(2.25rem+4.5px)]"
+          class="absolute top-1.5 -left-[calc(1.75rem+4.5px)] size-[9px] rounded-full bg-accent ring-4 ring-bg sm:-left-[calc(2.25rem+4.5px)]"
           aria-hidden="true"
         />
+        {/* Halo on the most recent role only, to draw the eye there first. */}
+        {index === 0 && (
+          <span
+            class="absolute top-1.5 -left-[calc(1.75rem+4.5px)] size-[9px] animate-ping rounded-full bg-accent opacity-60 sm:-left-[calc(2.25rem+4.5px)]"
+            aria-hidden="true"
+          />
+        )}
 
         <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h3 class="text-base font-semibold">

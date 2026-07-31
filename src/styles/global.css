@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Dark mode is class-driven (`.dark` on <html>) rather than media-driven, so the
- * toggle in the header can override the OS preference. See `ThemeScript.astro`.
+ * Dark is the default. The `.dark` class is rendered server-side on <html>, and
+ * `ThemeScript.astro` only ever removes it when the visitor has explicitly
+ * chosen light — so there is no flash, and no dependence on the OS setting.
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -11,48 +12,61 @@
  *
  * Raw values live on :root / .dark; `@theme inline` maps them into Tailwind
  * utilities. The `inline` keyword matters: it makes `bg-surface` compile to
- * `var(--surface)` rather than a baked hex, so the utilities follow the theme
+ * `var(--surface)` rather than a baked hex, so utilities follow the theme
  * switch at runtime.
+ *
+ * Dark is tinted toward blue-violet rather than neutral black — a flat #000
+ * reads cheap, and the tint gives the accent something to sit against.
  * ------------------------------------------------------------------------- */
 
 :root {
-  --bg: #fcfcfd;
+  --bg: #fbfbfd;
+  --bg-deep: #f3f3f7;
   --surface: #ffffff;
-  --surface-2: #f4f4f6;
-  --border: #e4e4e8;
-  --border-strong: #d2d2d9;
-  --fg: #131316;
-  --fg-muted: #5c5c68;
-  --fg-subtle: #8b8b96;
+  --surface-2: #f4f4f7;
+  --border: #e5e5ea;
+  --border-strong: #d0d0d9;
+  --fg: #101014;
+  --fg-muted: #55555f;
+  --fg-subtle: #8a8a96;
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-fg: #ffffff;
-  --accent-soft: #eef2ff;
+  --accent-soft: #eef0ff;
+  /* Second stop for gradient text, glows and the aurora. */
+  --accent-2: #0ea5e9;
   --success: #15803d;
   --success-soft: #dcfce7;
-  --shadow-color: 240 6% 60%;
+  --grain-opacity: 0.035;
+  /* Light mode needs far less wash — the same blobs that read as atmosphere on
+   * a dark background tint the whole page lavender on a light one. */
+  --aurora-opacity: 0.16;
 }
 
 .dark {
-  --bg: #0a0a0d;
-  --surface: #121217;
-  --surface-2: #1a1a21;
-  --border: #26262f;
-  --border-strong: #34343f;
-  --fg: #f2f2f5;
-  --fg-muted: #a3a3b0;
-  --fg-subtle: #71717f;
+  --bg: #07070b;
+  --bg-deep: #040407;
+  --surface: #0e0e15;
+  --surface-2: #16161f;
+  --border: #21212c;
+  --border-strong: #33333f;
+  --fg: #f4f4f7;
+  --fg-muted: #a2a2b2;
+  --fg-subtle: #6e6e80;
   --accent: #8b8cf8;
   --accent-hover: #a5a6fa;
-  --accent-fg: #0a0a0d;
-  --accent-soft: #1c1c2e;
+  --accent-fg: #07070b;
+  --accent-soft: #17172a;
+  --accent-2: #38bdf8;
   --success: #4ade80;
-  --success-soft: #0f2818;
-  --shadow-color: 240 10% 2%;
+  --success-soft: #0d2318;
+  --grain-opacity: 0.055;
+  --aurora-opacity: 1;
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-border: var(--border);
@@ -64,6 +78,7 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-fg: var(--accent-fg);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-2: var(--accent-2);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
 
@@ -71,7 +86,6 @@
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
 
-  /* Reading measure for prose columns. */
   --container-prose: 68ch;
 }
 
@@ -86,22 +100,26 @@
 
   html {
     scroll-behavior: smooth;
-    /* Offset anchored headings clear of the sticky header. */
     scroll-padding-top: 6rem;
     -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
   }
 
   body {
     background-color: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
     /* Full-bleed decorations use `w-screen`, which counts the scrollbar and
      * would otherwise overflow. `clip` (not `hidden`) avoids creating a scroll
      * container, so the sticky header keeps working. */
     overflow-x: clip;
-    font-synthesis-weight: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
@@ -120,7 +138,7 @@
   h3,
   h4 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   p {
@@ -131,63 +149,6 @@
   @view-transition {
     navigation: auto;
   }
-}
-
-/* ---------------------------------------------------------------------------
- * View transitions
- *
- * The page slides up and fades between documents; elements that carry a
- * `view-transition-name` (a project card and its detail hero share one) morph
- * across instead.
- * ------------------------------------------------------------------------- */
-
-::view-transition-old(root) {
-  animation: vt-exit 0.28s cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-::view-transition-new(root) {
-  animation: vt-enter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes vt-exit {
-  to {
-    opacity: 0;
-    transform: translateY(-0.5rem);
-  }
-}
-
-@keyframes vt-enter {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-}
-
-/* The sticky header should stay put rather than slide with the page. */
-::view-transition-group(site-header) {
-  animation-duration: 0.3s;
-}
-
-/* ---------------------------------------------------------------------------
- * Scroll reveal — see components/visuals/ScrollReveal.astro
- *
- * Gated on `.reveal-ready`, which the script only sets once it is running, so
- * content is never left invisible when JS does not execute.
- * ------------------------------------------------------------------------- */
-
-.reveal-ready [data-reveal] {
-  opacity: 0;
-  transform: translateY(1.25rem);
-  transition:
-    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-
-.reveal-ready [data-reveal].is-revealed {
-  opacity: 1;
-  transform: none;
-  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -206,6 +167,325 @@
   @view-transition {
     navigation: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * View transitions
+ * ------------------------------------------------------------------------- */
+
+::view-transition-old(root) {
+  animation: vt-exit 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vt-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes vt-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+/* The sticky header and fixed backdrop should hold still, not slide. */
+::view-transition-group(site-header),
+::view-transition-group(site-aurora) {
+  animation-duration: 0.3s;
+}
+
+/* ---------------------------------------------------------------------------
+ * Atmosphere — aurora wash and film grain
+ *
+ * Both are fixed, pointer-events-none layers behind all content. Pure CSS, so
+ * they cost nothing and render everywhere, including where WebGL is refused.
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: var(--aurora-opacity);
+    will-change: transform;
+  }
+
+  /* Grain sits above the aurora but below content, breaking up the flat
+   * gradients so they read as film rather than CSS. */
+  .grain-overlay::after {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-shift 8s steps(6) infinite;
+  }
+
+  @keyframes grain-shift {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    20% {
+      transform: translate(-3%, 2%);
+    }
+    40% {
+      transform: translate(2%, -3%);
+    }
+    60% {
+      transform: translate(-2%, -2%);
+    }
+    80% {
+      transform: translate(3%, 3%);
+    }
+  }
+
+  @keyframes aurora-drift-a {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(6%, -8%, 0) scale(1.12);
+    }
+    66% {
+      transform: translate3d(-5%, 6%, 0) scale(0.94);
+    }
+  }
+
+  @keyframes aurora-drift-b {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(-8%, 5%, 0) scale(0.92);
+    }
+    66% {
+      transform: translate3d(5%, -6%, 0) scale(1.1);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Typography effects
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  /* Gradient wash across display type. Falls back to plain colour where
+   * background-clip: text is unsupported. */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      var(--fg) 0%,
+      var(--fg) 42%,
+      var(--accent) 68%,
+      var(--accent-2) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Per-character entrance for the hero name. Delays are set inline so the
+   * stagger is computed at build time and needs no JS. */
+  .kinetic-char {
+    display: inline-block;
+    animation: char-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  @keyframes char-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5em) rotate(4deg);
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll progress
+ *
+ * Native scroll-driven animation where supported (Chrome/Edge 115+, Safari
+ * 18+), which is most of the audience. Elsewhere the bar simply stays empty —
+ * it is decorative, so no JS fallback is worth the bytes.
+ * ------------------------------------------------------------------------- */
+
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    transform-origin: 0 50%;
+    animation: progress-grow linear;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes progress-grow {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Marquee
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 42s linear infinite;
+  }
+
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* The track holds two identical copies, so -50% is a seamless wrap. */
+  @keyframes marquee-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Spotlight cards — see components/visuals/Spotlight.astro
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  .spotlight-card {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .spotlight-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: radial-gradient(
+      16rem circle at var(--spot-x, 50%) var(--spot-y, 0),
+      color-mix(in oklab, var(--accent) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Hairline that brightens on hover, drawn over the fill. */
+  .spotlight-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: radial-gradient(
+      20rem circle at var(--spot-x, 50%) var(--spot-y, 0),
+      color-mix(in oklab, var(--accent) 60%, transparent),
+      transparent 65%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .spotlight-card:hover::after {
+    opacity: 1;
+  }
+
+  .spotlight-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Sheen that sweeps across a button on hover. */
+  .sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-20deg);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.28),
+      transparent
+    );
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+
+  .sheen:hover::after {
+    transform: translateX(120%) skewX(-20deg);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll reveal — see components/visuals/ScrollReveal.astro
+ *
+ * Gated on `.reveal-ready`, which the script only sets once it is running, so
+ * content is never left invisible when JS does not execute.
+ * ------------------------------------------------------------------------- */
+
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* The experience timeline's rule draws itself downward as it is revealed. */
+.reveal-ready [data-draw-line]::before {
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-ready [data-draw-line].is-revealed::before {
+  transform: scaleY(1);
 }
 
 /* ---------------------------------------------------------------------------
@@ -363,82 +643,14 @@
  * Utilities
  * ------------------------------------------------------------------------- */
 
-/* ---------------------------------------------------------------------------
- * Spotlight cards — see components/visuals/Spotlight.astro
- * ------------------------------------------------------------------------- */
-
-@layer components {
-  .spotlight-card {
-    position: relative;
-    isolation: isolate;
-  }
-
-  /* Soft highlight that follows the cursor, revealed on hover. */
-  .spotlight-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    background: radial-gradient(
-      16rem circle at var(--spot-x, 50%) var(--spot-y, 0),
-      color-mix(in oklab, var(--accent) 14%, transparent),
-      transparent 70%
-    );
-  }
-
-  .spotlight-card:hover::before {
-    opacity: 1;
-  }
-
-  /* Hairline that brightens on hover, drawn over the fill. */
-  .spotlight-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    border-radius: inherit;
-    padding: 1px;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    background: radial-gradient(
-      20rem circle at var(--spot-x, 50%) var(--spot-y, 0),
-      color-mix(in oklab, var(--accent) 55%, transparent),
-      transparent 65%
-    );
-    /* Mask the fill so only the 1px border shows. */
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  .spotlight-card:hover::after {
-    opacity: 1;
-  }
-
-  /* Card content must sit above both pseudo-element layers. */
-  .spotlight-card > * {
-    position: relative;
-    z-index: 2;
-  }
-}
-
 @utility animate-rise {
-  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(0.75rem);
+    transform: translateY(0.9rem);
   }
   to {
     opacity: 1;

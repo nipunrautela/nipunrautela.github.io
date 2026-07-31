@@ -6,6 +6,8 @@ import Hero from "../components/sections/Hero.astro";
 import Section from "../components/ui/Section.astro";
 import ExperienceTimeline from "../components/sections/ExperienceTimeline.astro";
 import SkillGrid from "../components/sections/SkillGrid.astro";
+import Stats from "../components/sections/Stats.astro";
+import Marquee from "../components/visuals/Marquee.astro";
 import ProjectCard from "../components/cards/ProjectCard.astro";
 import PostCard from "../components/cards/PostCard.astro";
 import Button from "../components/ui/Button.astro";
@@ -38,6 +40,14 @@ const education = (await getCollection("education")).sort(
 const skills = (await getCollection("skills")).sort(
   (a, b) => b.data.order - a.data.order,
 );
+const stats = (await getCollection("stats")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+
+/** Flattened skill list, split across two counter-scrolling marquee rows. */
+const allSkills = skills.flatMap((group) => group.data.items);
+const marqueeTop = allSkills.filter((_, i) => i % 2 === 0);
+const marqueeBottom = allSkills.filter((_, i) => i % 2 === 1);
 
 /** Filter chips derive from the data, so a new category just appears. */
 const categories = [
@@ -49,9 +59,24 @@ const categories = [
 <BaseLayout title={SITE.title} description={SITE.description}>
   <div class="mx-auto max-w-5xl px-5 sm:px-8">
     <Hero />
+  </div>
+
+  <!-- Full-bleed marquee of the stack, breaking the column rhythm. -->
+  <div class="border-y border-border/60 py-5">
+    <div class="space-y-3">
+      <Marquee items={marqueeTop} />
+      <Marquee items={marqueeBottom} reverse />
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-5xl px-5 sm:px-8">
+    <!-- Impact -->
+    <section class="py-16 sm:py-20" aria-label="Impact">
+      <Stats stats={stats} />
+    </section>
 
     <!-- About -->
-    <Section title="About" eyebrow="Who I am" id="about">
+    <Section title="About" eyebrow="Who I am" number="01" id="about">
       <div class="flex flex-col gap-10 sm:flex-row-reverse sm:items-start">
         <Image
           src={profileImage}
@@ -77,6 +102,7 @@ const categories = [
     <Section
       title="Experience"
       eyebrow="Where I've worked"
+      number="02"
       link={{ href: "/resume/", label: "Full résumé" }}
       id="experience"
     >
@@ -122,6 +148,7 @@ const categories = [
     <Section
       title="Work"
       eyebrow="Things I've built"
+      number="03"
       description="Infrastructure and backend work, plus the side projects that taught me most of what I know."
       id="work"
     >
@@ -169,6 +196,7 @@ const categories = [
         <Section
           title="Writing"
           eyebrow="Notes"
+          number="04"
           link={{ href: "/blog/", label: "All posts" }}
           id="writing"
         >
@@ -185,6 +213,7 @@ const categories = [
     <Section
       title="Get in touch"
       eyebrow="Contact"
+      number="05"
       description={
         PROFILE.availability.open
           ? "I'm open to new opportunities in platform, infrastructure and backend engineering. Email is the surest way to reach me."

@@ -3,12 +3,13 @@ import { SITE, NAV } from "../../site.config";
 import { isActivePath } from "../../lib/utils";
 import Icon from "../ui/Icon.astro";
 import ThemeToggle from "./ThemeToggle.astro";
+import ScrollProgress from "../visuals/ScrollProgress.astro";
 
 const current = Astro.url.pathname;
 ---
 
 <header
-  class="sticky top-0 z-50 border-b border-border/70 bg-bg/80 backdrop-blur-md"
+  class="sticky top-0 z-50 border-b border-border/60 bg-bg/70 backdrop-blur-xl"
   style="view-transition-name: site-header;"
 >
   <div
@@ -88,6 +89,8 @@ const current = Astro.url.pathname;
       }
     </ul>
   </nav>
+
+  <ScrollProgress />
 </header>
 
 <script>

@@ -1,46 +1,36 @@
 ---
 /**
- * Animated node-graph backdrop for the hero — a slowly rotating point cloud
- * with proximity edges, standing in for the distributed systems the rest of
- * the page talks about.
+ * The hero's centrepiece: one object, rendered with weight.
  *
- * Behaviour notes:
+ * A noise-displaced icosahedron core with fresnel rim lighting, wrapped in a
+ * shell of glowing nodes and the edges between them — a system that breathes
+ * rather than a wireframe that spins. Everything is a custom ShaderMaterial so
+ * there are no lights to set up and no textures to download.
+ *
+ * Behaviour:
  *   - three.js is dynamically imported, so it code-splits out of the main
  *     bundle and never blocks first paint.
- *   - Skipped entirely under `prefers-reduced-motion`, on small viewports, and
- *     where WebGL is unavailable. The CSS gradient underneath is the fallback,
- *     so nothing looks broken when the canvas never arrives.
- *   - The render loop pauses when scrolled out of view or the tab is hidden.
- *   - Edge topology is computed once at build of the geometry, not per frame,
- *     so the loop stays O(n) rather than O(n²).
+ *   - Skipped under `prefers-reduced-motion`, below 640px, and where WebGL is
+ *     unavailable. The CSS aurora behind it is the fallback, so nothing looks
+ *     broken when the canvas never arrives.
+ *   - The loop pauses when scrolled out of view or the tab is hidden, and
+ *     rotation carries inertia so it never snaps to the cursor.
  */
 ---
 
 {/*
-  Breaks out of the page's max-width column to span the viewport, so the
-  backdrop reads as ambient rather than as a boxed graphic. The radial mask
-  fades every edge into the page instead of cutting a hard rectangle.
+  Breaks out of the page's max-width column to span the viewport, so the scene
+  reads as ambient rather than as a boxed graphic. The radial mask fades every
+  edge into the page instead of cutting a hard rectangle.
 */}
 <div
-  class="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[130%] w-screen -translate-x-1/2 -translate-y-1/2 overflow-hidden"
-  style="mask-image: radial-gradient(ellipse 75% 60% at 60% 45%, #000 35%, transparent 78%); -webkit-mask-image: radial-gradient(ellipse 75% 60% at 60% 45%, #000 35%, transparent 78%);"
+  class="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[135%] w-screen -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+  style="mask-image: radial-gradient(ellipse 72% 62% at 62% 45%, #000 30%, transparent 76%); -webkit-mask-image: radial-gradient(ellipse 72% 62% at 62% 45%, #000 30%, transparent 76%);"
   aria-hidden="true"
 >
-  <!-- Ambient wash. Also the fallback when the canvas is skipped. -->
-  <div
-    class="absolute top-[6%] right-[12%] size-[34rem] rounded-full opacity-40 blur-[110px]"
-    style="background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"
-  >
-  </div>
-  <div
-    class="absolute top-[35%] left-[8%] size-[24rem] rounded-full opacity-20 blur-[100px]"
-    style="background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"
-  >
-  </div>
-
   <canvas
     id="hero-scene"
-    class="absolute inset-0 size-full opacity-0 transition-opacity duration-[1200ms]"
+    class="absolute inset-0 size-full opacity-0 transition-opacity duration-[1400ms] ease-out"
   ></canvas>
 </div>
 
@@ -51,8 +41,8 @@
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
-  // Below this width the hero is text-dense and the scene is mostly hidden
-  // behind it — not worth the bytes or the battery.
+  // Below this width the hero is text-dense and the scene sits mostly behind
+  // it — not worth the bytes or the battery.
   const tooNarrow = window.matchMedia("(max-width: 640px)").matches;
 
   if (canvas && !reducedMotion && !tooNarrow) {
@@ -71,37 +61,187 @@
         canvas,
         alpha: true,
         antialias: true,
-        powerPreference: "low-power",
+        powerPreference: "high-performance",
       });
     } catch {
-      return; // No WebGL — the CSS gradient stands in.
+      return; // No WebGL — the CSS aurora stands in.
     }
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Cap at 1.75 rather than 2: on dense displays the extra pixels are not
+    // visible through the blur and mask, but they cost real fill rate.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-    camera.position.z = 22;
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.z = 26;
 
-    // --- Geometry -----------------------------------------------------------
+    const group = new THREE.Group();
+    scene.add(group);
 
-    const NODE_COUNT = 130;
-    const RADIUS = 11;
-    /** Nodes closer than this get an edge drawn between them. */
-    const LINK_DISTANCE = 4.4;
+    // --- Shared GLSL -------------------------------------------------------
+    // Classic 3D simplex noise (Ashima / Gustavson). Used to displace the core
+    // and to drift the node shell, so both move as one system.
+    const NOISE_GLSL = /* glsl */ `
+      vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+      vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
+      vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 
-    const positions = new Float32Array(NODE_COUNT * 3);
+      float snoise(vec3 v) {
+        const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+
+        vec3 i  = floor(v + dot(v, C.yyy));
+        vec3 x0 = v - i + dot(i, C.xxx);
+
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - D.yyy;
+
+        i = mod289(i);
+        vec4 p = permute(permute(permute(
+                   i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                 + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                 + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+
+        float n_ = 0.142857142857;
+        vec3 ns = n_ * D.wyz - D.xzx;
+
+        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+
+        vec4 x_ = floor(j * ns.z);
+        vec4 y_ = floor(j - 7.0 * x_);
+
+        vec4 x = x_ * ns.x + ns.yyyy;
+        vec4 y = y_ * ns.x + ns.yyyy;
+        vec4 h = 1.0 - abs(x) - abs(y);
+
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+
+        vec4 s0 = floor(b0) * 2.0 + 1.0;
+        vec4 s1 = floor(b1) * 2.0 + 1.0;
+        vec4 sh = -step(h, vec4(0.0));
+
+        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+
+        vec3 p0 = vec3(a0.xy, h.x);
+        vec3 p1 = vec3(a0.zw, h.y);
+        vec3 p2 = vec3(a1.xy, h.z);
+        vec3 p3 = vec3(a1.zw, h.w);
+
+        vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+
+        vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+        m = m * m;
+        return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+      }
+    `;
+
+    // --- Core --------------------------------------------------------------
+    // A subdivided icosahedron whose vertices ride a noise field. Shaded by
+    // fresnel alone, so it reads as a glowing shell rather than a solid.
+
+    const coreUniforms = {
+      uTime: { value: 0 },
+      uAccent: { value: new THREE.Color("#8b8cf8") },
+      uAccent2: { value: new THREE.Color("#38bdf8") },
+      uOpacity: { value: 0.55 },
+      uDisplacement: { value: 1.15 },
+      uBrightness: { value: 1 },
+    };
+
+    const coreMaterial = new THREE.ShaderMaterial({
+      uniforms: coreUniforms,
+      transparent: true,
+      depthWrite: false,
+      // Additive so overlapping surfaces build brightness instead of occluding.
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+      vertexShader: /* glsl */ `
+        uniform float uTime;
+        uniform float uDisplacement;
+
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        varying float vNoise;
+
+        ${NOISE_GLSL}
+
+        void main() {
+          // Two octaves: a slow swell plus a finer ripple.
+          float n = snoise(normal * 1.1 + uTime * 0.12);
+          n += 0.5 * snoise(normal * 2.6 - uTime * 0.18);
+
+          vNoise = n;
+
+          vec3 displaced = position + normal * n * uDisplacement;
+
+          vec4 mvPosition = modelViewMatrix * vec4(displaced, 1.0);
+
+          vNormal = normalize(normalMatrix * normal);
+          vViewDir = normalize(-mvPosition.xyz);
+
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uAccent;
+        uniform vec3 uAccent2;
+        uniform float uOpacity;
+        uniform float uBrightness;
+
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        varying float vNoise;
+
+        void main() {
+          // Fresnel: bright at grazing angles, transparent face-on. This is
+          // what gives the shape its rim and its sense of volume.
+          float fresnel = pow(1.0 - abs(dot(normalize(vNormal), normalize(vViewDir))), 2.4);
+
+          // Blend the two accents by the noise value so colour moves with form.
+          vec3 colour = mix(uAccent, uAccent2, smoothstep(-1.0, 1.0, vNoise));
+
+          float alpha = fresnel * uOpacity;
+
+          gl_FragColor = vec4(colour * (0.35 + fresnel * 1.3) * uBrightness, alpha);
+        }
+      `,
+    });
+
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(7.6, 24),
+      coreMaterial,
+    );
+    group.add(core);
+
+    // --- Node shell --------------------------------------------------------
+    // Points on a jittered Fibonacci sphere, with edges between neighbours.
+    // Topology is computed once; only the group transform changes per frame.
+
+    const NODE_COUNT = 150;
+    const RADIUS = 11.5;
+    const LINK_DISTANCE = 4.1;
+
+    const nodePositions = new Float32Array(NODE_COUNT * 3);
+    const nodeSeeds = new Float32Array(NODE_COUNT);
     const points: Array<{ x: number; y: number; z: number }> = [];
 
-    // Fibonacci sphere, jittered inward so it reads as a cloud with structure
-    // rather than a hollow shell.
     const golden = Math.PI * (3 - Math.sqrt(5));
 
     for (let i = 0; i < NODE_COUNT; i++) {
       const y = 1 - (i / (NODE_COUNT - 1)) * 2;
       const ring = Math.sqrt(Math.max(0, 1 - y * y));
       const theta = golden * i;
-      const depth = RADIUS * (0.55 + Math.random() * 0.45);
+      const depth = RADIUS * (0.72 + Math.random() * 0.28);
 
       const point = {
         x: Math.cos(theta) * ring * depth,
@@ -110,10 +250,10 @@
       };
 
       points.push(point);
-      positions.set([point.x, point.y, point.z], i * 3);
+      nodePositions.set([point.x, point.y, point.z], i * 3);
+      nodeSeeds[i] = Math.random() * 6.283;
     }
 
-    // Edges are fixed relative to the group, so this runs once.
     const edges: number[] = [];
 
     for (let i = 0; i < NODE_COUNT; i++) {
@@ -130,21 +270,72 @@
       }
     }
 
-    const group = new THREE.Group();
-    scene.add(group);
-
     const nodeGeometry = new THREE.BufferGeometry();
     nodeGeometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(positions, 3),
+      new THREE.BufferAttribute(nodePositions, 3),
     );
+    nodeGeometry.setAttribute("aSeed", new THREE.BufferAttribute(nodeSeeds, 1));
 
-    const nodeMaterial = new THREE.PointsMaterial({
-      size: 0.13,
+    const nodeUniforms = {
+      uTime: { value: 0 },
+      uAccent: { value: new THREE.Color("#8b8cf8") },
+      uAccent2: { value: new THREE.Color("#38bdf8") },
+      uSize: { value: 26 },
+      uPixelRatio: { value: renderer.getPixelRatio() },
+    };
+
+    const nodeMaterial = new THREE.ShaderMaterial({
+      uniforms: nodeUniforms,
       transparent: true,
-      opacity: 0.9,
       depthWrite: false,
-      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending,
+      vertexShader: /* glsl */ `
+        uniform float uTime;
+        uniform float uSize;
+        uniform float uPixelRatio;
+
+        attribute float aSeed;
+
+        varying float vPulse;
+        varying float vDepth;
+
+        void main() {
+          // Each node breathes on its own phase, so the shell shimmers rather
+          // than flashing in unison.
+          vPulse = 0.55 + 0.45 * sin(uTime * 1.1 + aSeed);
+
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+          // Fade nodes that sit behind the core, giving the shell depth.
+          vDepth = smoothstep(-14.0, 10.0, mvPosition.z);
+
+          gl_Position = projectionMatrix * mvPosition;
+
+          // Perspective-correct sizing.
+          gl_PointSize = uSize * uPixelRatio * vPulse * (1.0 / -mvPosition.z);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uAccent;
+        uniform vec3 uAccent2;
+
+        varying float vPulse;
+        varying float vDepth;
+
+        void main() {
+          // Procedural soft disc — no sprite texture to download.
+          float d = length(gl_PointCoord - 0.5);
+          if (d > 0.5) discard;
+
+          float core = smoothstep(0.5, 0.0, d);
+          float glow = pow(core, 3.0);
+
+          vec3 colour = mix(uAccent, uAccent2, vPulse);
+
+          gl_FragColor = vec4(colour, glow * vPulse * (0.25 + vDepth * 0.75));
+        }
+      `,
     });
 
     group.add(new THREE.Points(nodeGeometry, nodeMaterial));
@@ -157,39 +348,58 @@
 
     const edgeMaterial = new THREE.LineBasicMaterial({
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.16,
       depthWrite: false,
+      blending: THREE.AdditiveBlending,
     });
 
     group.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
 
-    // --- Theming ------------------------------------------------------------
+    // --- Theming -----------------------------------------------------------
 
-    /** Reads the live accent token so the scene follows the theme toggle. */
-    const applyThemeColour = () => {
-      const accent = getComputedStyle(document.documentElement)
-        .getPropertyValue("--accent")
-        .trim();
+    const readToken = (name: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-      if (!accent) return;
-
-      const colour = new THREE.Color(accent);
-      nodeMaterial.color = colour;
-      edgeMaterial.color = colour;
-
+    /** Pulls the live accent tokens so the scene follows the theme toggle. */
+    const applyTheme = () => {
+      const accent = readToken("--accent");
+      const accent2 = readToken("--accent-2");
       const dark = document.documentElement.classList.contains("dark");
-      nodeMaterial.opacity = dark ? 0.9 : 0.75;
-      edgeMaterial.opacity = dark ? 0.22 : 0.16;
+
+      if (accent) {
+        coreUniforms.uAccent.value.set(accent);
+        nodeUniforms.uAccent.value.set(accent);
+      }
+      if (accent2) {
+        coreUniforms.uAccent2.value.set(accent2);
+        nodeUniforms.uAccent2.value.set(accent2);
+      }
+
+      // Additive blending accumulates toward white, which is right on a dark
+      // background and washes out to a pale blob on a light one. Light mode
+      // therefore composites normally and leans on the fresnel rim instead.
+      const blending = dark ? THREE.AdditiveBlending : THREE.NormalBlending;
+
+      coreMaterial.blending = blending;
+      nodeMaterial.blending = blending;
+      edgeMaterial.blending = blending;
+      coreMaterial.needsUpdate = true;
+      nodeMaterial.needsUpdate = true;
+      edgeMaterial.needsUpdate = true;
+
+      coreUniforms.uOpacity.value = dark ? 0.55 : 0.75;
+      coreUniforms.uBrightness.value = dark ? 1 : 0.55;
+      edgeMaterial.opacity = dark ? 0.16 : 0.09;
     };
 
-    applyThemeColour();
+    applyTheme();
 
-    new MutationObserver(applyThemeColour).observe(document.documentElement, {
+    new MutationObserver(applyTheme).observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
 
-    // --- Sizing -------------------------------------------------------------
+    // --- Sizing ------------------------------------------------------------
 
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = container;
@@ -198,12 +408,13 @@
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      nodeUniforms.uPixelRatio.value = renderer.getPixelRatio();
     };
 
     resize();
     new ResizeObserver(resize).observe(container);
 
-    // --- Interaction --------------------------------------------------------
+    // --- Interaction -------------------------------------------------------
 
     const pointer = { x: 0, y: 0 };
     const target = { x: 0, y: 0 };
@@ -211,33 +422,48 @@
     window.addEventListener(
       "pointermove",
       (event) => {
-        target.x = (event.clientX / window.innerWidth - 0.5) * 0.5;
-        target.y = (event.clientY / window.innerHeight - 0.5) * 0.5;
+        target.x = (event.clientX / window.innerWidth - 0.5) * 2;
+        target.y = (event.clientY / window.innerHeight - 0.5) * 2;
       },
       { passive: true },
     );
 
-    // --- Loop ---------------------------------------------------------------
+    // --- Loop --------------------------------------------------------------
 
     let frame = 0;
     let onScreen = true;
     let running = false;
 
-    const render = () => {
+    // Own clock rather than THREE.Clock (deprecated in r185). Time only
+    // advances while running, so pausing never causes a jump on resume.
+    let elapsed = 0;
+    let lastFrame = 0;
+
+    const render = (now: number) => {
       if (!running) return;
       frame = requestAnimationFrame(render);
 
-      // Ease toward the pointer so motion never snaps.
-      pointer.x += (target.x - pointer.x) * 0.04;
-      pointer.y += (target.y - pointer.y) * 0.04;
+      // Clamp the delta so a long pause or a stalled tab cannot fast-forward
+      // the animation on the first frame back.
+      elapsed += Math.min((now - lastFrame) / 1000, 0.05);
+      lastFrame = now;
 
-      group.rotation.y += 0.0012;
-      group.rotation.x = pointer.y * 0.6;
+      coreUniforms.uTime.value = elapsed;
+      nodeUniforms.uTime.value = elapsed;
 
-      // Sit the cloud to the right of the headline on wide screens so it
-      // never competes with the text for attention.
-      const offsetX = container.clientWidth > 1100 ? 7 : 2.5;
-      group.position.x = offsetX + pointer.x * 2.5;
+      // Ease toward the pointer — the lag is what gives the object mass.
+      pointer.x += (target.x - pointer.x) * 0.035;
+      pointer.y += (target.y - pointer.y) * 0.035;
+
+      group.rotation.y += 0.0011;
+      group.rotation.x = pointer.y * 0.28;
+      group.rotation.z = pointer.x * 0.08;
+
+      // Sit the object clear of the headline on wide screens so it never
+      // competes with the text for attention.
+      const offsetX = container.clientWidth > 1100 ? 8 : 2.5;
+      group.position.x = offsetX + pointer.x * 1.4;
+      group.position.y = -pointer.y * 0.9;
 
       renderer.render(scene, camera);
     };
@@ -245,6 +471,7 @@
     const start = () => {
       if (running) return;
       running = true;
+      lastFrame = performance.now();
       frame = requestAnimationFrame(render);
     };
 
@@ -253,7 +480,7 @@
       cancelAnimationFrame(frame);
     };
 
-    // Only animate while the hero is actually on screen and the tab is active.
+    // Only animate while the hero is on screen and the tab is active.
     new IntersectionObserver(
       ([entry]) => {
         onScreen = entry.isIntersecting;

@@ -6,6 +6,7 @@ import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import ScrollReveal from "../components/visuals/ScrollReveal.astro";
 import Spotlight from "../components/visuals/Spotlight.astro";
+import Aurora from "../components/visuals/Aurora.astro";
 import { SITE } from "../site.config";
 
 /**
@@ -28,13 +29,14 @@ const { mainClass = "", ...head } = Astro.props;
 ---
 
 <!doctype html>
-<html lang={SITE.locale} class="scroll-smooth">
+{/* `dark` is rendered here so the default theme is correct before any JS. */}
+<html lang={SITE.locale} class="dark scroll-smooth">
   <head>
     <ThemeScript />
     <BaseHead {...head} />
   </head>
 
-  <body class="flex min-h-svh flex-col">
+  <body class="grain-overlay flex min-h-svh flex-col">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:text-accent-fg"
@@ -42,9 +44,10 @@ const { mainClass = "", ...head } = Astro.props;
       Skip to content
     </a>
 
+    <Aurora />
     <Header />
 
-    <main id="main" class={mainClass}>
+    <main id="main" class={`relative z-10 ${mainClass}`}>
       <slot />
     </main>
 

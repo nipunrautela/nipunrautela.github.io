@@ -36,7 +36,7 @@ highlighting. Only content that wants its own URL gets a route:
 src/
 ├── site.config.ts      # name, role, email, socials, navigation
 ├── content.config.ts   # collection schemas — the contract for all content
-├── data/               # CV data as JSON (experience, education, skills)
+├── data/               # CV data as JSON (experience, education, skills, stats)
 ├── content/
 │   ├── projects/       # one markdown file per project → /work/<slug>/
 │   ├── blog/           # one markdown file per post → /blog/<slug>/
@@ -45,7 +45,8 @@ src/
 │   ├── ui/             # Button, Tag, Icon, Section
 │   ├── layout/         # BaseHead, Header, Footer, theme toggle
 │   ├── cards/          # ProjectCard, PostCard
-│   └── sections/       # Hero, ExperienceTimeline, SkillGrid
+│   ├── sections/       # Hero, ExperienceTimeline, SkillGrid, Stats
+│   └── visuals/        # Aurora, HeroScene, Marquee, reveals, spotlight
 ├── layouts/            # BaseLayout → PageLayout / ProseLayout
 ├── pages/              # routes; index.astro is the whole portfolio
 ├── lib/                # utils and the SVG icon registry
@@ -77,9 +78,13 @@ new SVG path data there if the one you want is missing.
 
 ### Experience, education, skills
 
-`src/data/*.json`. Each file is an array of objects validated by the schema in
-`src/content.config.ts`, so a missing or misspelled field fails the build rather
-than rendering blank.
+`src/data/*.json` — `experience.json`, `education.json`, `skills.json` and
+`stats.json` (the four headline metrics on the home page). Each file is an array
+of objects validated by the schema in `src/content.config.ts`, so a missing or
+misspelled field fails the build rather than rendering blank.
+
+`skills.json` also feeds the marquee under the hero, so adding a skill shows up
+in three places at once.
 
 Ordering is by the `order` field, highest first. For a current role, set
 `"end": null` and it renders as "Present".
@@ -152,9 +157,11 @@ Tailwind utilities via `@theme inline`. To restyle the site, change the values
 under `:root` and `.dark` — every component reads from those, so nothing else
 needs touching.
 
-Dark mode is class-based on `<html>`, set before first paint by an inline script
-so there is no flash. It follows the OS preference until the user picks a theme,
-after which the choice is stored in `localStorage`.
+**Dark is the default.** The `dark` class is rendered server-side on `<html>`,
+and the inline `ThemeScript` only ever *removes* it — when the visitor has
+explicitly chosen light. That means no flash in either direction, and no
+dependence on the OS setting. The site is designed dark-first; light is an
+opt-in, stored in `localStorage`.
 
 Fonts (Inter and JetBrains Mono) are self-hosted and subsetted by Astro's Fonts
 API — configured in `astro.config.mjs`, with no runtime request to a font CDN.
@@ -164,17 +171,50 @@ API — configured in `astro.config.mjs`, with no runtime request to a font CDN.
 Everything here degrades to a static, readable page. `prefers-reduced-motion`
 disables the lot.
 
-**Hero scene** (`components/visuals/HeroScene.astro`) — a three.js node graph:
-130 points on a jittered Fibonacci sphere, edges drawn between neighbours within
-a fixed radius, rotating slowly with pointer parallax. It reads the live
-`--accent` token so it follows the theme toggle.
+The art direction follows what the current award-winning work actually does:
+atmosphere and framing rather than spectacle, one full-screen wash plus one
+object with real weight, and each section staged as a beat.
 
-three.js is `await import()`ed, so it lands in its own ~724 KB chunk (~180 KB
-gzipped) that no other page loads. It is skipped entirely under reduced motion,
-under 640 px wide, and where WebGL is unavailable — the CSS gradient underneath
-is the fallback, so nothing looks broken when it never arrives. The render loop
-pauses when the hero scrolls out of view or the tab is hidden, and edge topology
-is computed once rather than per frame.
+**Atmosphere** (`Aurora.astro`) — a slow-drifting aurora of blurred accent blobs
+plus an SVG-turbulence film grain, both fixed behind all content. Deliberately
+pure CSS: the hero already spends a WebGL context, and a second one purely for
+background colour would be waste. It renders everywhere, including where WebGL
+is refused.
+
+**Hero scene** (`HeroScene.astro`) — one object, rendered with weight. A
+noise-displaced icosahedron core shaded by fresnel alone, wrapped in a shell of
+150 glowing nodes and the edges between them. Everything is a custom
+`ShaderMaterial` — 3D simplex noise displaces the core in the vertex shader and
+drives the colour mix in the fragment shader, and the nodes are procedural soft
+discs, so there are no lights to configure and no textures to download.
+
+Dark mode composites additively, which accumulates toward white — correct on a
+dark background. Light mode switches to normal blending and leans on the fresnel
+rim instead, because additive on white washes out to a pale blob.
+
+three.js is `await import()`ed into its own ~724 KB chunk (~180 KB gzipped) that
+no other page loads. It is skipped under reduced motion, below 640 px, and where
+WebGL is unavailable — the CSS aurora is the fallback. The loop pauses when the
+hero scrolls out of view or the tab is hidden, edge topology is computed once
+rather than per frame, and the frame delta is clamped so a long pause cannot
+fast-forward the animation on resume.
+
+**Kinetic type** — the hero name is split into characters at build time with
+staggered `animation-delay`, so the entrance needs no JavaScript. `aria-label`
+carries the real name for screen readers.
+
+**Stats** (`Stats.astro`) — headline metrics from `src/data/stats.json`, counting
+up once when scrolled into view. The final values are server-rendered, so the
+figures are correct with JavaScript off.
+
+**Marquee** (`Marquee.astro`) — two counter-scrolling rows of the stack. The
+track holds the list twice and translates exactly -50%, so the loop is seamless;
+the visible copy is `aria-hidden` and a real list sits behind it for assistive
+tech.
+
+**Scroll progress** — native `animation-timeline: scroll()`, so no scroll
+listener and no main-thread work. Behind `@supports`; where unsupported the bar
+just stays empty.
 
 **Page transitions** use the native CSS `@view-transition` rule — no client-side
 router. Project cards and their detail pages share a `view-transition-name`, so
