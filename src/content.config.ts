@@ -62,20 +62,6 @@ const skills = defineCollection({
   }),
 });
 
-/** Headline metrics for the home page. Keep these backed by the résumé. */
-const stats = defineCollection({
-  loader: file("src/data/stats.json"),
-  schema: z.object({
-    /** Numeric so the count-up animation has something to interpolate. */
-    value: z.number(),
-    /** Rendered immediately after the value, e.g. "%" or "×". */
-    suffix: z.string().default(""),
-    label: z.string(),
-    detail: z.string(),
-    order: z.number().default(0),
-  }),
-});
-
 const projects = defineCollection({
   loader: glob({ base: "./src/content/projects", pattern: "**/*.{md,mdx}" }),
   schema: ({ image }) =>
@@ -139,7 +125,6 @@ export const collections = {
   experience,
   education,
   skills,
-  stats,
   projects,
   blog,
   pages,

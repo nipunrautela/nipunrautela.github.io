@@ -36,7 +36,7 @@ highlighting. Only content that wants its own URL gets a route:
 src/
 ├── site.config.ts      # name, role, email, socials, navigation
 ├── content.config.ts   # collection schemas — the contract for all content
-├── data/               # CV data as JSON (experience, education, skills, stats)
+├── data/               # CV data as JSON (experience, education, skills)
 ├── content/
 │   ├── projects/       # one markdown file per project → /work/<slug>/
 │   ├── blog/           # one markdown file per post → /blog/<slug>/
@@ -45,7 +45,7 @@ src/
 │   ├── ui/             # Button, Tag, Icon, Section
 │   ├── layout/         # BaseHead, Header, Footer, theme toggle
 │   ├── cards/          # ProjectCard, PostCard
-│   ├── sections/       # Hero, ExperienceTimeline, SkillGrid, Stats
+│   ├── sections/       # Hero, ExperienceTimeline, SkillGrid
 │   └── visuals/        # Aurora, HeroScene, Marquee, reveals, spotlight
 ├── layouts/            # BaseLayout → PageLayout / ProseLayout
 ├── pages/              # routes; index.astro is the whole portfolio
@@ -78,13 +78,12 @@ new SVG path data there if the one you want is missing.
 
 ### Experience, education, skills
 
-`src/data/*.json` — `experience.json`, `education.json`, `skills.json` and
-`stats.json` (the four headline metrics on the home page). Each file is an array
-of objects validated by the schema in `src/content.config.ts`, so a missing or
-misspelled field fails the build rather than rendering blank.
+`src/data/*.json` — `experience.json`, `education.json` and `skills.json`. Each
+file is an array of objects validated by the schema in `src/content.config.ts`,
+so a missing or misspelled field fails the build rather than rendering blank.
 
-`skills.json` also feeds the marquee under the hero, so adding a skill shows up
-in three places at once.
+`skills.json` feeds both the Skills grid and the marquee under the hero, so
+adding a skill shows up in both at once.
 
 Ordering is by the `order` field, highest first. For a current role, set
 `"end": null` and it renders as "Present".
@@ -202,10 +201,6 @@ fast-forward the animation on resume.
 **Kinetic type** — the hero name is split into characters at build time with
 staggered `animation-delay`, so the entrance needs no JavaScript. `aria-label`
 carries the real name for screen readers.
-
-**Stats** (`Stats.astro`) — headline metrics from `src/data/stats.json`, counting
-up once when scrolled into view. The final values are server-rendered, so the
-figures are correct with JavaScript off.
 
 **Marquee** (`Marquee.astro`) — two counter-scrolling rows of the stack. The
 track holds the list twice and translates exactly -50%, so the loop is seamless;

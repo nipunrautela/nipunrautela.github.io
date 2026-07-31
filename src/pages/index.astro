@@ -6,7 +6,6 @@ import Hero from "../components/sections/Hero.astro";
 import Section from "../components/ui/Section.astro";
 import ExperienceTimeline from "../components/sections/ExperienceTimeline.astro";
 import SkillGrid from "../components/sections/SkillGrid.astro";
-import Stats from "../components/sections/Stats.astro";
 import Marquee from "../components/visuals/Marquee.astro";
 import ProjectCard from "../components/cards/ProjectCard.astro";
 import PostCard from "../components/cards/PostCard.astro";
@@ -40,10 +39,6 @@ const education = (await getCollection("education")).sort(
 const skills = (await getCollection("skills")).sort(
   (a, b) => b.data.order - a.data.order,
 );
-const stats = (await getCollection("stats")).sort(
-  (a, b) => b.data.order - a.data.order,
-);
-
 /** Flattened skill list, split across two counter-scrolling marquee rows. */
 const allSkills = skills.flatMap((group) => group.data.items);
 const marqueeTop = allSkills.filter((_, i) => i % 2 === 0);
@@ -70,11 +65,6 @@ const categories = [
   </div>
 
   <div class="mx-auto max-w-5xl px-5 sm:px-8">
-    <!-- Impact -->
-    <section class="py-16 sm:py-20" aria-label="Impact">
-      <Stats stats={stats} />
-    </section>
-
     <!-- About -->
     <Section title="About" eyebrow="Who I am" number="01" id="about">
       <div class="flex flex-col gap-10 sm:flex-row-reverse sm:items-start">
