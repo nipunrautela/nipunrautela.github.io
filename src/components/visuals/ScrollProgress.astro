@@ -1,0 +1,21 @@
+---
+/**
+ * Reading-progress bar pinned under the header.
+ *
+ * Driven entirely by the native `animation-timeline: scroll()` — no scroll
+ * listener, no layout reads, and it runs off the main thread. Where the
+ * property is unsupported the bar simply stays empty, which is fine for
+ * something purely decorative (see the @supports block in global.css).
+ */
+---
+
+<div
+  class="pointer-events-none absolute inset-x-0 bottom-0 h-px overflow-hidden"
+  aria-hidden="true"
+>
+  <div
+    class="scroll-progress h-full w-full origin-left scale-x-0"
+    style="background: linear-gradient(90deg, var(--accent), var(--accent-2));"
+  >
+  </div>
+</div>

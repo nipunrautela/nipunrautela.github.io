@@ -1,0 +1,42 @@
+---
+/**
+ * Site-wide atmosphere: a slow-drifting aurora wash plus a film-grain overlay,
+ * fixed behind all content.
+ *
+ * Deliberately pure CSS. The hero already spends a WebGL context on the three.js
+ * scene, and a second one purely for background colour would be wasteful —
+ * this renders everywhere, including where WebGL is refused, and costs nothing
+ * but a few composited layers.
+ */
+---
+
+<div
+  class="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
+  style="view-transition-name: site-aurora;"
+  aria-hidden="true"
+>
+  <!-- Deep base so the blobs have something to sit against. -->
+  <div
+    class="absolute inset-0"
+    style="background: radial-gradient(ellipse 90% 60% at 50% -10%, var(--accent-soft) 0%, transparent 60%), linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);"
+  >
+  </div>
+
+  <div
+    class="aurora-blob top-[-14%] right-[-6%] size-[42rem]"
+    style="background: radial-gradient(circle, var(--accent) 0%, transparent 68%); animation: aurora-drift-a 26s ease-in-out infinite;"
+  >
+  </div>
+
+  <div
+    class="aurora-blob top-[22%] left-[-14%] size-[34rem]"
+    style="background: radial-gradient(circle, var(--accent-2) 0%, transparent 68%); opacity: calc(var(--aurora-opacity) * 0.45); animation: aurora-drift-b 32s ease-in-out infinite;"
+  >
+  </div>
+
+  <div
+    class="aurora-blob bottom-[-18%] left-[28%] size-[38rem]"
+    style="background: radial-gradient(circle, var(--accent) 0%, transparent 70%); opacity: calc(var(--aurora-opacity) * 0.35); animation: aurora-drift-a 38s ease-in-out infinite reverse;"
+  >
+  </div>
+</div>

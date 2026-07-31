@@ -1,0 +1,40 @@
+---
+interface Props {
+  items: string[];
+  /** Reverses direction, so stacked marquees can scroll against each other. */
+  reverse?: boolean;
+}
+
+const { items, reverse = false } = Astro.props;
+
+/**
+ * The track holds the list twice; the CSS animation translates it by exactly
+ * -50%, so the second copy lands where the first began and the loop is
+ * seamless. Duplicating in markup rather than JS keeps it working everywhere.
+ */
+const doubled = [...items, ...items];
+---
+
+<div
+  class="marquee relative overflow-hidden py-1"
+  style="mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);"
+>
+  <ul
+    class="marquee-track gap-3"
+    style={reverse ? "animation-direction: reverse;" : undefined}
+    aria-hidden="true"
+  >
+    {
+      doubled.map((item) => (
+        <li class="shrink-0 rounded-full border border-border bg-surface/50 px-4 py-1.5 font-mono text-xs whitespace-nowrap text-fg-muted backdrop-blur-sm">
+          {item}
+        </li>
+      ))
+    }
+  </ul>
+
+  {/* The visible track is decorative and duplicated; this is the real list. */}
+  <ul class="sr-only">
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+</div>

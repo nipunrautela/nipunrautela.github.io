@@ -1,0 +1,103 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ProseLayout from "../../layouts/ProseLayout.astro";
+import Button from "../../components/ui/Button.astro";
+import { isPublished, sortByDate } from "../../lib/utils";
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection("projects", isPublished);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+
+/** Previous/next by date, so a write-up always has somewhere to go. */
+const all = sortByDate(await getCollection("projects", isPublished));
+const index = all.findIndex((p) => p.id === project.id);
+const previous = all[index + 1];
+const next = all[index - 1];
+---
+
+<ProseLayout
+  title={data.title}
+  description={data.description}
+  date={data.date}
+  tags={data.tags}
+  cover={data.cover}
+  coverAlt={data.coverAlt}
+  eyebrow={data.category}
+  backLink={{ href: "/#projects", label: "All projects" }}
+  transitionName={`project-${project.id}`}
+>
+  <Content />
+
+  <Fragment slot="footer">
+    {
+      (data.repo || data.demo) && (
+        <div class="mt-12 flex flex-wrap gap-3 border-t border-border pt-8">
+          {data.repo && (
+            <Button
+              href={data.repo}
+              variant="secondary"
+              icon="github"
+              iconPosition="start"
+              external
+            >
+              View source
+            </Button>
+          )}
+          {data.demo && (
+            <Button href={data.demo} icon="arrow-up-right" external>
+              Live demo
+            </Button>
+          )}
+        </div>
+      )
+    }
+
+    {
+      (previous || next) && (
+        <nav
+          class="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2"
+          aria-label="More projects"
+        >
+          {previous ? (
+            <a
+              href={`/projects/${previous.id}/`}
+              class="group rounded-xl border border-border p-4 transition-colors hover:border-border-strong"
+            >
+              <p class="font-mono text-xs text-fg-subtle">Previous</p>
+              <p class="mt-1 font-medium transition-colors group-hover:text-accent">
+                {previous.data.title}
+              </p>
+            </a>
+          ) : (
+            <div />
+          )}
+
+          {next && (
+            <a
+              href={`/projects/${next.id}/`}
+              class="group rounded-xl border border-border p-4 text-right transition-colors hover:border-border-strong sm:col-start-2"
+            >
+              <p class="font-mono text-xs text-fg-subtle">Next</p>
+              <p class="mt-1 font-medium transition-colors group-hover:text-accent">
+                {next.data.title}
+              </p>
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </Fragment>
+</ProseLayout>

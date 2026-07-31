@@ -1,0 +1,144 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+import BaseLayout from "./BaseLayout.astro";
+import Icon from "../components/ui/Icon.astro";
+import Tag from "../components/ui/Tag.astro";
+import { formatDate, slugify } from "../lib/utils";
+
+/**
+ * Long-form article shell — used by blog posts, project write-ups and the
+ * standalone markdown pages (/uses, /now).
+ */
+interface Props {
+  title: string;
+  description: string;
+  date?: Date;
+  updatedDate?: Date;
+  tags?: string[];
+  /** Tags link to /blog/tags/<slug>/ when true. */
+  linkTags?: boolean;
+  cover?: ImageMetadata;
+  coverAlt?: string;
+  readingTime?: string;
+  /** Back link shown above the title. */
+  backLink?: { href: string; label: string };
+  /** Small uppercase kicker above the title. */
+  eyebrow?: string;
+  image?: string;
+  /**
+   * Pairs this header with the card the reader clicked, so the two morph into
+   * each other during the view transition. Must match the card's name exactly.
+   */
+  transitionName?: string;
+}
+
+const {
+  title,
+  description,
+  date,
+  updatedDate,
+  tags = [],
+  linkTags = false,
+  cover,
+  coverAlt = "",
+  readingTime,
+  backLink,
+  eyebrow,
+  image,
+  transitionName,
+} = Astro.props;
+---
+
+<BaseLayout
+  {title}
+  {description}
+  {image}
+  type="article"
+  publishedTime={date}
+  modifiedTime={updatedDate}
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16">
+    {
+      backLink && (
+        <a
+          href={backLink.href}
+          class="group mb-8 inline-flex items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-accent"
+        >
+          <Icon
+            name="arrow-left"
+            size={15}
+            class="transition-transform duration-200 group-hover:-translate-x-0.5"
+          />
+          {backLink.label}
+        </a>
+      )
+    }
+
+    <header
+      class="animate-rise"
+      style={transitionName ? `view-transition-name: ${transitionName};` : undefined}
+    >
+      {
+        eyebrow && (
+          <p class="mb-3 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase">
+            {eyebrow}
+          </p>
+        )
+      }
+
+      <h1 class="text-3xl font-semibold sm:text-4xl">{title}</h1>
+
+      <p class="mt-4 text-lg leading-relaxed text-fg-muted">{description}</p>
+
+      {
+        (date || readingTime) && (
+          <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-fg-subtle">
+            {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
+            {date && readingTime && <span aria-hidden="true">·</span>}
+            {readingTime && <span>{readingTime}</span>}
+            {updatedDate && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>Updated {formatDate(updatedDate)}</span>
+              </>
+            )}
+          </div>
+        )
+      }
+
+      {
+        tags.length > 0 && (
+          <ul class="mt-5 flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <li>
+                <Tag href={linkTags ? `/blog/tags/${slugify(tag)}/` : undefined}>
+                  {tag}
+                </Tag>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    {
+      cover && (
+        <Image
+          src={cover}
+          alt={coverAlt}
+          widths={[480, 768, 1024]}
+          sizes="(max-width: 768px) 100vw, 768px"
+          class="mt-10 w-full rounded-xl border border-border object-cover"
+          loading="eager"
+        />
+      )
+    }
+
+    <div class="prose mt-12">
+      <slot />
+    </div>
+
+    <slot name="footer" />
+  </article>
+</BaseLayout>

@@ -1,0 +1,111 @@
+---
+import { PROFILE, SOCIALS } from "../../site.config";
+import Button from "../ui/Button.astro";
+import Icon from "../ui/Icon.astro";
+import HeroScene from "../visuals/HeroScene.astro";
+
+/**
+ * Split into characters for the staggered entrance. Delays are baked in at
+ * build time, so the animation needs no JavaScript at all. Spaces become
+ * non-breaking so the inline-block characters keep their gaps.
+ */
+const characters = [...PROFILE.name].map((char, index) => ({
+  char: char === " " ? " " : char,
+  delay: 80 + index * 38,
+}));
+---
+
+<section class="relative pt-20 pb-6 sm:pt-28 sm:pb-12">
+  <HeroScene />
+
+  <div class="animate-rise">
+    {
+      PROFILE.availability.open && (
+        <p class="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3.5 py-1.5 text-xs font-medium text-fg-muted backdrop-blur-sm">
+          <span class="relative flex size-1.5">
+            <span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
+            <span class="relative inline-flex size-1.5 rounded-full bg-success" />
+          </span>
+          {PROFILE.availability.label}
+        </p>
+      )
+    }
+
+    <h1
+      class="text-5xl font-semibold tracking-tighter sm:text-7xl"
+      aria-label={PROFILE.name}
+    >
+      <span aria-hidden="true">
+        {
+          characters.map(({ char, delay }) => (
+            <span
+              class="kinetic-char text-gradient"
+              style={`animation-delay: ${delay}ms;`}
+            >
+              {char}
+            </span>
+          ))
+        }<span
+          class="kinetic-char text-accent"
+          style={`animation-delay: ${80 + characters.length * 38}ms;`}>.</span
+        >
+      </span>
+    </h1>
+
+    <p
+      class="mt-4 font-mono text-sm tracking-wide text-fg-subtle animate-rise [animation-delay:700ms]"
+    >
+      {PROFILE.role} · {PROFILE.location}
+    </p>
+
+    <p
+      class="mt-8 max-w-2xl text-xl leading-relaxed text-fg-muted animate-rise [animation-delay:800ms] sm:text-2xl"
+    >
+      {PROFILE.headline}
+    </p>
+  </div>
+
+  <div
+    class="mt-10 flex flex-wrap items-center gap-3 animate-rise [animation-delay:900ms]"
+  >
+    <Button href="#projects" icon="arrow-right" class="sheen">
+      See my projects
+    </Button>
+    <Button
+      href={PROFILE.resume.href}
+      variant="secondary"
+      icon="download"
+      iconPosition="start"
+      external
+    >
+      {PROFILE.resume.label}
+    </Button>
+
+    <ul class="ml-1 flex items-center gap-1">
+      {
+        SOCIALS.map((social) => (
+          <li>
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex size-9 items-center justify-center rounded-full text-fg-subtle transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface-2 hover:text-accent"
+            >
+              <Icon name={social.icon} size={18} label={social.label} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <!-- Quiet cue that there is more below the fold. -->
+  <div
+    class="mt-16 hidden items-center gap-3 animate-rise [animation-delay:1100ms] sm:flex"
+  >
+    <span class="h-px w-12 bg-gradient-to-r from-accent to-transparent"></span>
+    <span class="font-mono text-[11px] tracking-[0.2em] text-fg-subtle uppercase">
+      Scroll
+    </span>
+  </div>
+</section>

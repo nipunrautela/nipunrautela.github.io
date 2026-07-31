@@ -1,0 +1,60 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+/**
+ * Standard interior page: constrained column, page title block, then content.
+ * Use for listings and static pages. Long-form prose uses ProseLayout.
+ */
+interface Props {
+  title: string;
+  description?: string;
+  /** Displayed heading. Falls back to `title` (the <title> tag value). */
+  heading?: string;
+  /** Intro paragraph under the heading. */
+  lede?: string;
+  eyebrow?: string;
+  image?: string;
+  noindex?: boolean;
+  /** `wide` suits card grids; `default` suits text. */
+  width?: "default" | "wide";
+}
+
+const {
+  title,
+  description,
+  heading,
+  lede,
+  eyebrow,
+  image,
+  noindex,
+  width = "default",
+} = Astro.props;
+
+const maxWidth = width === "wide" ? "max-w-5xl" : "max-w-3xl";
+---
+
+<BaseLayout {title} {description} {image} {noindex}>
+  <div class={`mx-auto ${maxWidth} px-5 py-14 sm:px-8 sm:py-20`}>
+    <header class="animate-rise">
+      {
+        eyebrow && (
+          <p class="mb-3 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase">
+            {eyebrow}
+          </p>
+        )
+      }
+      <h1 class="text-3xl font-semibold sm:text-4xl">{heading ?? title}</h1>
+      {
+        lede && (
+          <p class="mt-4 max-w-2xl text-lg leading-relaxed text-fg-muted">
+            {lede}
+          </p>
+        )
+      }
+    </header>
+
+    <div class="mt-12 animate-rise [animation-delay:80ms]">
+      <slot />
+    </div>
+  </div>
+</BaseLayout>

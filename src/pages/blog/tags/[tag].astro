@@ -1,0 +1,57 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import PageLayout from "../../../layouts/PageLayout.astro";
+import PostCard from "../../../components/cards/PostCard.astro";
+import Icon from "../../../components/ui/Icon.astro";
+import {
+  collectTags,
+  isPublished,
+  readingTime,
+  slugify,
+  sortByDate,
+} from "../../../lib/utils";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("blog", isPublished);
+
+  return collectTags(posts).map(({ tag }) => ({
+    params: { tag: slugify(tag) },
+    props: {
+      tag,
+      posts: sortByDate(posts.filter((p) => p.data.tags.includes(tag))),
+    },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<"blog">[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<PageLayout
+  title={`Posts tagged “${tag}”`}
+  description={`All writing tagged ${tag}.`}
+  heading={tag}
+  eyebrow="Tag"
+  lede={`${posts.length} ${posts.length === 1 ? "post" : "posts"} tagged “${tag}”.`}
+>
+  <a
+    href="/blog/"
+    class="group mb-8 inline-flex items-center gap-1.5 text-sm text-fg-muted transition-colors hover:text-accent"
+  >
+    <Icon
+      name="arrow-left"
+      size={15}
+      class="transition-transform duration-200 group-hover:-translate-x-0.5"
+    />
+    All writing
+  </a>
+
+  <div>
+    {posts.map((post) => <PostCard post={post} readingTime={readingTime(post.body)} />)}
+  </div>
+</PageLayout>

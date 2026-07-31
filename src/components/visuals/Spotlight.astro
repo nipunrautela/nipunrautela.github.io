@@ -1,0 +1,48 @@
+---
+/**
+ * Cursor-following spotlight for cards.
+ *
+ * Any element marked `data-spotlight` gets `--spot-x` / `--spot-y` custom
+ * properties tracking the pointer, which the card CSS in `global.css` uses to
+ * position a soft radial highlight. Pointer coordinates are written inside a
+ * rAF so a fast cursor cannot trigger layout thrash.
+ */
+---
+
+<script>
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  // Coarse pointers have no hover state worth chasing.
+  const fine = window.matchMedia("(pointer: fine)").matches;
+
+  if (!reducedMotion && fine) {
+    const cards = document.querySelectorAll<HTMLElement>("[data-spotlight]");
+    let queued = false;
+
+    for (const card of cards) {
+      let x = 0;
+      let y = 0;
+
+      card.addEventListener(
+        "pointermove",
+        (event) => {
+          const rect = card.getBoundingClientRect();
+          x = event.clientX - rect.left;
+          y = event.clientY - rect.top;
+
+          if (queued) return;
+          queued = true;
+
+          requestAnimationFrame(() => {
+            card.style.setProperty("--spot-x", `${x}px`);
+            card.style.setProperty("--spot-y", `${y}px`);
+            queued = false;
+          });
+        },
+        { passive: true },
+      );
+    }
+  }
+</script>

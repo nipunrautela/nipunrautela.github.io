@@ -1,0 +1,76 @@
+---
+import Icon from "./Icon.astro";
+import type { IconName } from "../../lib/icons";
+
+interface Props {
+  href?: string;
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md";
+  icon?: IconName;
+  /** Icon side. Defaults to trailing, which suits arrows and external links. */
+  iconPosition?: "start" | "end";
+  external?: boolean;
+  download?: boolean;
+  class?: string;
+  type?: "button" | "submit";
+}
+
+const {
+  href,
+  variant = "primary",
+  size = "md",
+  icon,
+  iconPosition = "end",
+  external = false,
+  download = false,
+  class: className = "",
+  type = "button",
+} = Astro.props;
+
+const base =
+  "group inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50";
+
+const variants = {
+  primary:
+    "bg-accent text-accent-fg hover:bg-accent-hover hover:-translate-y-px shadow-sm",
+  secondary:
+    "bg-surface text-fg border border-border hover:border-border-strong hover:bg-surface-2 hover:-translate-y-px",
+  ghost: "text-fg-muted hover:text-fg hover:bg-surface-2",
+};
+
+const sizes = {
+  sm: "px-3.5 py-1.5 text-sm",
+  md: "px-5 py-2.5 text-sm",
+};
+
+const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
+const Tag = href ? "a" : "button";
+
+const linkAttrs = href
+  ? {
+      href,
+      ...(external ? { target: "_blank", rel: "noopener noreferrer" } : {}),
+      ...(download ? { download: "" } : {}),
+    }
+  : { type };
+
+const iconEl = icon ? icon : null;
+---
+
+<Tag class={classes} {...linkAttrs}>
+  {
+    iconEl && iconPosition === "start" && (
+      <Icon name={iconEl} size={size === "sm" ? 15 : 16} />
+    )
+  }
+  <slot />
+  {
+    iconEl && iconPosition === "end" && (
+      <Icon
+        name={iconEl}
+        size={size === "sm" ? 15 : 16}
+        class="transition-transform duration-200 group-hover:translate-x-0.5"
+      />
+    )
+  }
+</Tag>

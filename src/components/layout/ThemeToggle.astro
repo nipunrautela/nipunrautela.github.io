@@ -1,0 +1,38 @@
+---
+import Icon from "../ui/Icon.astro";
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-border text-fg-muted transition-colors hover:border-border-strong hover:text-fg"
+  aria-label="Toggle colour theme"
+>
+  <Icon name="sun" size={16} class="hidden dark:block" />
+  <Icon name="moon" size={16} class="block dark:hidden" />
+</button>
+
+<script>
+  const toggle = document.getElementById("theme-toggle");
+
+  toggle?.addEventListener("click", () => {
+    const root = document.documentElement;
+    const next = root.classList.contains("dark") ? "light" : "dark";
+
+    const apply = () => {
+      root.classList.toggle("dark", next === "dark");
+      root.style.colorScheme = next;
+      localStorage.setItem("theme", next);
+    };
+
+    // Cross-fade the switch where the browser supports it.
+    if (
+      document.startViewTransition &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      document.startViewTransition(apply);
+    } else {
+      apply();
+    }
+  });
+</script>

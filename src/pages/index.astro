@@ -1,0 +1,333 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/sections/Hero.astro";
+import Section from "../components/ui/Section.astro";
+import ExperienceTimeline from "../components/sections/ExperienceTimeline.astro";
+import SkillGrid from "../components/sections/SkillGrid.astro";
+import Marquee from "../components/visuals/Marquee.astro";
+import ProjectCard from "../components/cards/ProjectCard.astro";
+import PostCard from "../components/cards/PostCard.astro";
+import Button from "../components/ui/Button.astro";
+import Icon from "../components/ui/Icon.astro";
+import Tag from "../components/ui/Tag.astro";
+import { SITE, PROFILE, SOCIALS } from "../site.config";
+import {
+  formatRange,
+  isPublished,
+  readingTime,
+  sortByDate,
+} from "../lib/utils";
+import profileImage from "../assets/profile.png";
+
+/**
+ * The whole portfolio on one page: about, experience, projects and contact are
+ * sections here rather than separate routes. Only long-form content keeps its
+ * own pages — /blog, /resume, /uses, /now, and each project write-up.
+ */
+
+const projects = sortByDate(await getCollection("projects", isPublished));
+const posts = sortByDate(await getCollection("blog", isPublished)).slice(0, 3);
+
+const experience = (await getCollection("experience")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+const education = (await getCollection("education")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+const skills = (await getCollection("skills")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+/** Flattened skill list, split across two counter-scrolling marquee rows. */
+const allSkills = skills.flatMap((group) => group.data.items);
+const marqueeTop = allSkills.filter((_, i) => i % 2 === 0);
+const marqueeBottom = allSkills.filter((_, i) => i % 2 === 1);
+
+/** Filter chips derive from the data, so a new category just appears. */
+const categories = [
+  "All",
+  ...[...new Set(projects.map((p) => p.data.category))].sort(),
+];
+---
+
+<BaseLayout title={SITE.title} description={SITE.description}>
+  <div class="mx-auto max-w-5xl px-5 sm:px-8">
+    <Hero />
+  </div>
+
+  <!-- Full-bleed marquee of the stack, breaking the column rhythm. -->
+  <div class="border-y border-border/60 py-5">
+    <div class="space-y-3">
+      <Marquee items={marqueeTop} />
+      <Marquee items={marqueeBottom} reverse />
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-5xl px-5 sm:px-8">
+    <!-- About -->
+    <Section title="About" eyebrow="Who I am" number="01" id="about">
+      <div class="flex flex-col gap-10 sm:flex-row-reverse sm:items-start">
+        <Image
+          src={profileImage}
+          alt={PROFILE.name}
+          widths={[160, 320]}
+          sizes="160px"
+          class="size-32 shrink-0 rounded-2xl border border-border object-cover sm:size-40"
+          loading="lazy"
+        />
+
+        <div class="max-w-2xl space-y-4 text-lg leading-relaxed text-fg-muted">
+          {PROFILE.intro.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+      </div>
+
+      <div class="mt-12">
+        <h3 class="mb-6 text-sm font-semibold tracking-wide">Skills</h3>
+        <SkillGrid groups={skills} />
+      </div>
+    </Section>
+
+    <!-- Experience -->
+    <Section
+      title="Experience"
+      eyebrow="Where I've worked"
+      number="02"
+      link={{ href: "/resume/", label: "Full résumé" }}
+      id="experience"
+    >
+      <ExperienceTimeline entries={experience} />
+
+      <div class="mt-14">
+        <h3 class="mb-6 text-sm font-semibold tracking-wide">Education</h3>
+        <ol class="space-y-6">
+          {
+            education.map(({ data }) => (
+              <li>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                  <h4 class="font-semibold">
+                    {data.qualification}
+                    {data.field && (
+                      <span class="font-normal text-fg-muted">
+                        {" · "}
+                        {data.field}
+                      </span>
+                    )}
+                  </h4>
+                  <p class="font-mono text-xs whitespace-nowrap text-fg-subtle">
+                    {formatRange(data.start, data.end)}
+                  </p>
+                </div>
+                <p class="mt-1 flex flex-wrap items-center gap-x-3 text-sm text-fg-muted">
+                  <span>{data.institution}</span>
+                  {data.result && <Tag variant="accent">{data.result}</Tag>}
+                </p>
+                {data.coursework.length > 0 && (
+                  <p class="mt-2 text-sm text-fg-subtle">
+                    {data.coursework.join(" · ")}
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </Section>
+
+    <!-- Projects -->
+    <Section
+      title="Projects"
+      eyebrow="Things I've built"
+      number="03"
+      description="Side projects and tools I've built on my own time — the ones that taught me most of what I know."
+      id="projects"
+    >
+      <div
+        class="mb-8 flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter projects by category"
+      >
+        {
+          categories.map((category) => (
+            <button
+              type="button"
+              data-filter={category}
+              class="cursor-pointer rounded-full border border-border px-3.5 py-1.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg aria-pressed:border-transparent aria-pressed:bg-accent aria-pressed:text-accent-fg"
+              aria-pressed={category === "All" ? "true" : "false"}
+            >
+              {category}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          projects.map((project, index) => (
+            <div
+              data-category={project.data.category}
+              data-reveal
+              data-reveal-delay={Math.min(index, 5) * 70}
+            >
+              <ProjectCard project={project} variant="feature" />
+            </div>
+          ))
+        }
+      </div>
+
+      <p id="empty-state" class="hidden py-12 text-center text-fg-muted">
+        Nothing in that category yet.
+      </p>
+    </Section>
+
+    <!-- Writing -->
+    {
+      posts.length > 0 && (
+        <Section
+          title="Writing"
+          eyebrow="Notes"
+          number="04"
+          link={{ href: "/blog/", label: "All posts" }}
+          id="writing"
+        >
+          <div>
+            {posts.map((post) => (
+              <PostCard post={post} readingTime={readingTime(post.body)} />
+            ))}
+          </div>
+        </Section>
+      )
+    }
+
+    <!-- Contact -->
+    <Section
+      title="Get in touch"
+      eyebrow="Contact"
+      number="05"
+      description={
+        PROFILE.availability.open
+          ? "I'm open to new opportunities in platform, infrastructure and backend engineering. Email is the surest way to reach me."
+          : "Always happy to talk about infrastructure, backend systems, or anything I've written here."
+      }
+      id="contact"
+    >
+      <div
+        class="rounded-xl border border-border bg-surface p-6 sm:flex sm:items-center sm:justify-between sm:gap-6"
+      >
+        <div class="min-w-0">
+          <p class="font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase">
+            Email
+          </p>
+          <p class="mt-2 text-lg font-medium break-all">{PROFILE.email}</p>
+        </div>
+
+        <div class="mt-5 flex gap-2 sm:mt-0 sm:shrink-0">
+          <Button
+            href={`mailto:${PROFILE.email}`}
+            icon="mail"
+            iconPosition="start"
+          >
+            Send an email
+          </Button>
+          <button
+            type="button"
+            id="copy-email"
+            data-email={PROFILE.email}
+            class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-fg transition-colors hover:border-border-strong hover:bg-surface-2"
+          >
+            <Icon name="copy" size={15} />
+            <span id="copy-label">Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+        {
+          SOCIALS.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:border-border-strong hover:bg-surface-2"
+              >
+                <Icon name={social.icon} size={20} class="text-fg-muted" />
+                <span class="min-w-0">
+                  <span class="block text-sm font-medium">{social.label}</span>
+                  <span class="block truncate font-mono text-xs text-fg-subtle">
+                    {social.handle}
+                  </span>
+                </span>
+                <Icon
+                  name="arrow-up-right"
+                  size={15}
+                  class="ml-auto text-fg-subtle transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <Button
+          href={PROFILE.resume.href}
+          variant="secondary"
+          icon="download"
+          iconPosition="start"
+          external
+        >
+          Download résumé (PDF)
+        </Button>
+        <Button href="/resume/" variant="secondary" icon="arrow-right">
+          Read it online
+        </Button>
+      </div>
+    </Section>
+  </div>
+</BaseLayout>
+
+<script>
+  // --- Project category filter ---
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
+  const items = document.querySelectorAll<HTMLElement>("[data-category]");
+  const empty = document.getElementById("empty-state");
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const selected = button.dataset.filter;
+
+      buttons.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b === button)),
+      );
+
+      let visible = 0;
+      items.forEach((item) => {
+        const match = selected === "All" || item.dataset.category === selected;
+        item.classList.toggle("hidden", !match);
+        if (match) visible++;
+      });
+
+      empty?.classList.toggle("hidden", visible > 0);
+    });
+  });
+
+  // --- Copy email ---
+  const copyButton = document.getElementById("copy-email");
+  const copyLabel = document.getElementById("copy-label");
+
+  copyButton?.addEventListener("click", async () => {
+    const email = copyButton.dataset.email;
+    if (!email || !copyLabel) return;
+
+    try {
+      await navigator.clipboard.writeText(email);
+      copyLabel.textContent = "Copied";
+    } catch {
+      // Clipboard unavailable (insecure context or permission denied).
+      copyLabel.textContent = "Press Ctrl+C";
+    }
+
+    setTimeout(() => (copyLabel.textContent = "Copy"), 2000);
+  });
+</script>

@@ -1,0 +1,42 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { ICONS, type IconName } from "../../lib/icons";
+
+interface Props {
+  name: IconName;
+  /** Rendered size in px, applied to both axes. */
+  size?: number;
+  class?: string;
+  /** Supply when the icon is the only content of an interactive element. */
+  label?: string;
+}
+
+const { name, size = 20, class: className = "", label } = Astro.props;
+const icon = ICONS[name];
+
+if (!icon) {
+  throw new Error(`Icon "${name}" is not defined. Add it to src/lib/icons.ts.`);
+}
+
+const filled = "filled" in icon && icon.filled;
+
+/** Decorative by default; announced only when given an explicit label. */
+const a11y: HTMLAttributes<"svg"> = label
+  ? { role: "img", "aria-label": label }
+  : { "aria-hidden": true };
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill={filled ? "currentColor" : "none"}
+  stroke={filled ? "none" : "currentColor"}
+  stroke-width={filled ? undefined : 1.75}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={`shrink-0 ${className}`}
+  {...a11y}
+  set:html={icon.d}
+></svg>

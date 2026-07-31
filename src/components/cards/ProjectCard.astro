@@ -1,0 +1,109 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import Tag from "../ui/Tag.astro";
+import type { IconName } from "../../lib/icons";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  /** `feature` renders a larger card with the cover image. */
+  variant?: "default" | "feature";
+}
+
+const { project, variant = "default" } = Astro.props;
+const { data } = project;
+const href = `/projects/${project.id}/`;
+const year = data.date.getFullYear();
+
+/**
+ * Each card carries a unique `view-transition-name` that the project's detail
+ * page reuses, so navigating between them morphs the card into the header
+ * rather than cross-fading the whole document.
+ */
+
+/** Fallback art for entries with no cover, so the grid stays even. */
+const CATEGORY_ICON: Record<typeof data.category, IconName> = {
+  Backend: "terminal",
+  Cloud: "layers",
+  Web: "code",
+  Mobile: "layers",
+  Data: "zap",
+  Tooling: "terminal",
+};
+---
+
+<article
+  class="spotlight-card group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface/60 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-border-strong hover:shadow-2xl hover:shadow-accent/10"
+  data-spotlight
+  style={`view-transition-name: project-${project.id};`}
+>
+  {
+    variant === "feature" &&
+      (data.cover ? (
+        <div class="aspect-[16/9] overflow-hidden border-b border-border bg-surface-2">
+          <Image
+            src={data.cover}
+            alt={data.coverAlt}
+            widths={[320, 640]}
+            sizes="(max-width: 640px) 100vw, 400px"
+            class="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <div
+          class="flex aspect-[16/9] items-center justify-center border-b border-border bg-gradient-to-br from-surface-2 to-accent-soft"
+          aria-hidden="true"
+        >
+          <Icon
+            name={CATEGORY_ICON[data.category]}
+            size={32}
+            class="text-accent opacity-40 transition-transform duration-500 group-hover:scale-110"
+          />
+        </div>
+      ))
+  }
+
+  <div class="flex flex-1 flex-col p-5">
+    <div class="mb-3 flex items-center gap-2">
+      <Tag variant="accent">{data.category}</Tag>
+      {data.status === "in-progress" && <Tag variant="outline">In progress</Tag>}
+      {data.status === "archived" && <Tag variant="outline">Archived</Tag>}
+      <span class="ml-auto font-mono text-xs text-fg-subtle">{year}</span>
+    </div>
+
+    <h3 class="text-base font-semibold transition-colors group-hover:text-accent">
+      <a href={href} class="after:absolute after:inset-0">{data.title}</a>
+    </h3>
+
+    <p class="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-fg-muted">
+      {data.description}
+    </p>
+
+    <div class="mt-4 flex items-center justify-between gap-3">
+      <ul class="flex flex-wrap gap-1.5">
+        {
+          data.tags.slice(0, 3).map((tag) => (
+            <li class="font-mono text-[11px] text-fg-subtle">{tag}</li>
+          ))
+        }
+      </ul>
+
+      {
+        data.repo && (
+          /* Sits above the card's stretched link so it stays clickable. */
+          <a
+            href={data.repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="relative z-10 text-fg-subtle transition-colors hover:text-fg"
+            aria-label={`${data.title} source on GitHub`}
+          >
+            <Icon name="github" size={16} />
+          </a>
+        )
+      }
+    </div>
+  </div>
+</article>

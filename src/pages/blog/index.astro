@@ -1,0 +1,56 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "../../layouts/PageLayout.astro";
+import PostCard from "../../components/cards/PostCard.astro";
+import Tag from "../../components/ui/Tag.astro";
+import Icon from "../../components/ui/Icon.astro";
+import { collectTags, isPublished, readingTime, slugify, sortByDate } from "../../lib/utils";
+
+const posts = sortByDate(await getCollection("blog", isPublished));
+const tags = collectTags(posts);
+---
+
+<PageLayout
+  title="Writing"
+  description="Notes on backend systems, cloud infrastructure and the things I learn while building them."
+  heading="Writing"
+  eyebrow="Notes"
+  lede="Occasional notes on backend systems, cloud infrastructure, and whatever I've just spent too long debugging."
+>
+  {
+    tags.length > 0 && (
+      <ul class="mb-10 flex flex-wrap gap-2">
+        {tags.map(({ tag, count }) => (
+          <li>
+            <Tag href={`/blog/tags/${slugify(tag)}/`}>
+              {tag}
+              <span class="text-fg-subtle">{count}</span>
+            </Tag>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    posts.length > 0 ? (
+      <div>
+        {posts.map((post) => (
+          <PostCard post={post} readingTime={readingTime(post.body)} />
+        ))}
+      </div>
+    ) : (
+      <p class="py-12 text-fg-muted">
+        Nothing published yet. Check back soon.
+      </p>
+    )
+  }
+
+  <a
+    href="/rss.xml"
+    class="mt-10 inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-accent"
+  >
+    <Icon name="rss" size={15} />
+    Subscribe via RSS
+  </a>
+</PageLayout>

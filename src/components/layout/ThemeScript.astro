@@ -1,0 +1,21 @@
+---
+/**
+ * Dark is the default and is already on <html> from the server, so there is
+ * nothing to do unless the visitor has explicitly chosen light. This script
+ * only ever *removes* the class, which means no flash in either direction.
+ *
+ * Must stay inline and render-blocking in <head> — deliberately not a
+ * `<script>` that Astro would bundle and defer.
+ */
+---
+
+<script is:inline>
+  (() => {
+    // The OS preference is intentionally not consulted: the site is designed
+    // dark-first, and light is an opt-in.
+    if (localStorage.getItem("theme") === "light") {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = "light";
+    }
+  })();
+</script>

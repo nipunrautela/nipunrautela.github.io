@@ -1,0 +1,36 @@
+---
+interface Props {
+  variant?: "default" | "accent" | "success" | "outline";
+  size?: "sm" | "md";
+  href?: string;
+  class?: string;
+}
+
+const {
+  variant = "default",
+  size = "sm",
+  href,
+  class: className = "",
+} = Astro.props;
+
+const variants = {
+  default: "bg-surface-2 text-fg-muted border-border",
+  accent: "bg-accent-soft text-accent border-transparent",
+  success: "bg-success-soft text-success border-transparent",
+  outline: "bg-transparent text-fg-subtle border-border",
+};
+
+const sizes = {
+  sm: "px-2.5 py-0.5 text-xs",
+  md: "px-3 py-1 text-sm",
+};
+
+const interactive = href
+  ? "hover:border-border-strong hover:text-fg transition-colors"
+  : "";
+
+const classes = `inline-flex items-center gap-1.5 rounded-full border font-medium whitespace-nowrap ${variants[variant]} ${sizes[size]} ${interactive} ${className}`;
+const Tag = href ? "a" : "span";
+---
+
+<Tag class={classes} {...href ? { href } : {}}><slot /></Tag>

@@ -1,0 +1,112 @@
+---
+import { SITE, PROFILE, SOCIALS, NAV, FOOTER_NAV } from "../../site.config";
+import Icon from "../ui/Icon.astro";
+
+const year = new Date().getFullYear();
+const range = year > SITE.startYear ? `${SITE.startYear}–${year}` : `${year}`;
+---
+
+<footer class="mt-auto border-t border-border">
+  <div class="mx-auto max-w-5xl px-5 py-12 sm:px-8">
+    <div class="flex flex-col justify-between gap-10 sm:flex-row sm:gap-16">
+      <div class="max-w-xs">
+        <p class="font-mono text-sm font-medium">
+          {SITE.title}<span class="text-accent">.</span>
+        </p>
+        <p class="mt-2 text-sm text-fg-muted">
+          {PROFILE.role} · {PROFILE.location}
+        </p>
+        <a
+          href={`mailto:${PROFILE.email}`}
+          class="mt-4 inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-accent"
+        >
+          <Icon name="mail" size={15} />
+          {PROFILE.email}
+        </a>
+      </div>
+
+      <div class="flex gap-12 sm:gap-16">
+        <nav aria-label="Footer">
+          <p
+            class="mb-3 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase"
+          >
+            Site
+          </p>
+          <ul class="space-y-2">
+            {
+              NAV.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="text-sm text-fg-muted transition-colors hover:text-fg"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <nav aria-label="More">
+          <p
+            class="mb-3 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase"
+          >
+            More
+          </p>
+          <ul class="space-y-2">
+            {
+              FOOTER_NAV.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="text-sm text-fg-muted transition-colors hover:text-fg"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col-reverse items-start justify-between gap-5 border-t border-border pt-6 sm:flex-row sm:items-center"
+    >
+      <p class="text-xs text-fg-subtle">
+        © {range} {PROFILE.name}. Built with <a
+          href="https://astro.build"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline decoration-border underline-offset-2 transition-colors hover:text-fg"
+          >Astro</a
+        >, <a
+          href="https://github.com/nipunrautela/nipunrautela.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline decoration-border underline-offset-2 transition-colors hover:text-fg"
+          >source on GitHub</a
+        >.
+      </p>
+
+      <ul class="flex items-center gap-1">
+        {
+          SOCIALS.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex size-9 items-center justify-center rounded-full text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg"
+              >
+                <Icon name={social.icon} size={17} label={social.label} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</footer>

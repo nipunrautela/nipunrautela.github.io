@@ -1,0 +1,59 @@
+---
+import "../styles/global.css";
+import BaseHead from "../components/layout/BaseHead.astro";
+import ThemeScript from "../components/layout/ThemeScript.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import ScrollReveal from "../components/visuals/ScrollReveal.astro";
+import Spotlight from "../components/visuals/Spotlight.astro";
+import Aurora from "../components/visuals/Aurora.astro";
+import { SITE } from "../site.config";
+
+/**
+ * The document shell. Everything else composes on top of this — it owns <head>,
+ * the header/footer chrome and nothing about page content.
+ */
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  noindex?: boolean;
+  /** Extra classes for the <main> element. */
+  mainClass?: string;
+}
+
+const { mainClass = "", ...head } = Astro.props;
+---
+
+<!doctype html>
+{/* `dark` is rendered here so the default theme is correct before any JS. */}
+<html lang={SITE.locale} class="dark scroll-smooth">
+  <head>
+    <ThemeScript />
+    <BaseHead {...head} />
+  </head>
+
+  <body class="grain-overlay flex min-h-svh flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:text-accent-fg"
+    >
+      Skip to content
+    </a>
+
+    <Aurora />
+    <Header />
+
+    <main id="main" class={`relative z-10 ${mainClass}`}>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <ScrollReveal />
+    <Spotlight />
+  </body>
+</html>
