@@ -1,0 +1,68 @@
+[
+  {
+    "id": "societe-generale",
+    "company": "Societe Generale Global Solution Centre",
+    "role": "Software Engineer",
+    "start": "Feb 2024",
+    "end": "Oct 2025",
+    "location": "Whitefield, Bangalore",
+    "type": "Full-time",
+    "url": "https://www.societegenerale.asia/en/gsc/",
+    "summary": "Platform and backend work across a large regulated estate — cloud migration, CI/CD, and the database jobs underneath it.",
+    "highlights": [
+      "Architected multiple on-premise applications onto Azure — AKS, Azure PostgreSQL, DNS, certificates and Key Vault — and automated the provisioning, cutting deployment effort by 80%.",
+      "Automated 90% of the blue-green migration for AKS, covering resource migration, network redirection and access re-provisioning, improving migration efficiency threefold.",
+      "Led the migration of every Docker image from Mirantis Secure Registry to Harbor, writing the Jenkins pipelines and Dockerfiles for the new workflow.",
+      "Optimized C-shell and pl/pgsql database scripts by parallelizing independent business logic, taking a nightly job from 5.5 hours to 3.",
+      "Migrated Excel-based VBA solutions to Python cloud functions, removing platform dependency entirely and backing them with tests at 70% coverage.",
+      "Built features across Java/Spring Boot services with React and Angular front-ends in an agile team, and added API-based data fetching for compliance by decomposing complex SQL queries while holding response-time overhead under 5%."
+    ],
+    "stack": [
+      "Azure",
+      "AKS",
+      "Kubernetes",
+      "Docker",
+      "Jenkins",
+      "Java",
+      "Spring Boot",
+      "Python",
+      "PostgreSQL",
+      "React",
+      "Angular"
+    ],
+    "order": 30
+  },
+  {
+    "id": "tvs-motor",
+    "company": "TVS Motor Company",
+    "role": "Data Scientist Intern",
+    "start": "May 2023",
+    "end": "Jul 2023",
+    "location": "Electronic City, Bangalore",
+    "type": "Internship",
+    "url": "https://www.tvsmotor.com/",
+    "summary": "Data pipelines and computer vision for the accessories business.",
+    "highlights": [
+      "Automated 90% of accessories sales and under-performing dealer analysis with a data-cleaning cronjob feeding a Power BI dashboard.",
+      "Fine-tuned a YOLOv8 accessory recognition model using augmentation-based and prior-based approaches, raising accuracy by 3%."
+    ],
+    "stack": ["Python", "YOLOv8", "Power BI", "Pandas"],
+    "order": 20
+  },
+  {
+    "id": "inxtinct-security",
+    "company": "Inxtinct Security",
+    "role": "Full Stack Developer",
+    "start": "Apr 2023",
+    "end": "Jun 2023",
+    "location": "Remote",
+    "type": "Freelance",
+    "summary": "An LLM-backed browser plugin for email threat analysis.",
+    "highlights": [
+      "Built an email security plugin performing intent and threat analysis with prompt-engineered GPT-4 calls, surfacing inline suggestions to the user.",
+      "Ported the plugin from vanilla JavaScript to React, TypeScript and Webpack, reducing subsequent development time by over 40%."
+    ],
+    "stack": ["React", "TypeScript", "Webpack", "GPT-4 API"],
+    "order": 10
+  }
+]

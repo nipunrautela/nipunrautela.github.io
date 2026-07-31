@@ -1,0 +1,272 @@
+---
+/**
+ * Animated node-graph backdrop for the hero — a slowly rotating point cloud
+ * with proximity edges, standing in for the distributed systems the rest of
+ * the page talks about.
+ *
+ * Behaviour notes:
+ *   - three.js is dynamically imported, so it code-splits out of the main
+ *     bundle and never blocks first paint.
+ *   - Skipped entirely under `prefers-reduced-motion`, on small viewports, and
+ *     where WebGL is unavailable. The CSS gradient underneath is the fallback,
+ *     so nothing looks broken when the canvas never arrives.
+ *   - The render loop pauses when scrolled out of view or the tab is hidden.
+ *   - Edge topology is computed once at build of the geometry, not per frame,
+ *     so the loop stays O(n) rather than O(n²).
+ */
+---
+
+{/*
+  Breaks out of the page's max-width column to span the viewport, so the
+  backdrop reads as ambient rather than as a boxed graphic. The radial mask
+  fades every edge into the page instead of cutting a hard rectangle.
+*/}
+<div
+  class="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[130%] w-screen -translate-x-1/2 -translate-y-1/2 overflow-hidden"
+  style="mask-image: radial-gradient(ellipse 75% 60% at 60% 45%, #000 35%, transparent 78%); -webkit-mask-image: radial-gradient(ellipse 75% 60% at 60% 45%, #000 35%, transparent 78%);"
+  aria-hidden="true"
+>
+  <!-- Ambient wash. Also the fallback when the canvas is skipped. -->
+  <div
+    class="absolute top-[6%] right-[12%] size-[34rem] rounded-full opacity-40 blur-[110px]"
+    style="background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"
+  >
+  </div>
+  <div
+    class="absolute top-[35%] left-[8%] size-[24rem] rounded-full opacity-20 blur-[100px]"
+    style="background: radial-gradient(circle, var(--accent) 0%, transparent 70%);"
+  >
+  </div>
+
+  <canvas
+    id="hero-scene"
+    class="absolute inset-0 size-full opacity-0 transition-opacity duration-[1200ms]"
+  ></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById("hero-scene") as HTMLCanvasElement | null;
+
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  // Below this width the hero is text-dense and the scene is mostly hidden
+  // behind it — not worth the bytes or the battery.
+  const tooNarrow = window.matchMedia("(max-width: 640px)").matches;
+
+  if (canvas && !reducedMotion && !tooNarrow) {
+    void initScene(canvas);
+  }
+
+  async function initScene(canvas: HTMLCanvasElement) {
+    const THREE = await import("three");
+
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    let renderer: InstanceType<typeof THREE.WebGLRenderer>;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "low-power",
+      });
+    } catch {
+      return; // No WebGL — the CSS gradient stands in.
+    }
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+    camera.position.z = 22;
+
+    // --- Geometry -----------------------------------------------------------
+
+    const NODE_COUNT = 130;
+    const RADIUS = 11;
+    /** Nodes closer than this get an edge drawn between them. */
+    const LINK_DISTANCE = 4.4;
+
+    const positions = new Float32Array(NODE_COUNT * 3);
+    const points: Array<{ x: number; y: number; z: number }> = [];
+
+    // Fibonacci sphere, jittered inward so it reads as a cloud with structure
+    // rather than a hollow shell.
+    const golden = Math.PI * (3 - Math.sqrt(5));
+
+    for (let i = 0; i < NODE_COUNT; i++) {
+      const y = 1 - (i / (NODE_COUNT - 1)) * 2;
+      const ring = Math.sqrt(Math.max(0, 1 - y * y));
+      const theta = golden * i;
+      const depth = RADIUS * (0.55 + Math.random() * 0.45);
+
+      const point = {
+        x: Math.cos(theta) * ring * depth,
+        y: y * depth,
+        z: Math.sin(theta) * ring * depth,
+      };
+
+      points.push(point);
+      positions.set([point.x, point.y, point.z], i * 3);
+    }
+
+    // Edges are fixed relative to the group, so this runs once.
+    const edges: number[] = [];
+
+    for (let i = 0; i < NODE_COUNT; i++) {
+      for (let j = i + 1; j < NODE_COUNT; j++) {
+        const a = points[i];
+        const b = points[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const dz = a.z - b.z;
+
+        if (Math.sqrt(dx * dx + dy * dy + dz * dz) < LINK_DISTANCE) {
+          edges.push(a.x, a.y, a.z, b.x, b.y, b.z);
+        }
+      }
+    }
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const nodeGeometry = new THREE.BufferGeometry();
+    nodeGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(positions, 3),
+    );
+
+    const nodeMaterial = new THREE.PointsMaterial({
+      size: 0.13,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      sizeAttenuation: true,
+    });
+
+    group.add(new THREE.Points(nodeGeometry, nodeMaterial));
+
+    const edgeGeometry = new THREE.BufferGeometry();
+    edgeGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(edges), 3),
+    );
+
+    const edgeMaterial = new THREE.LineBasicMaterial({
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+    });
+
+    group.add(new THREE.LineSegments(edgeGeometry, edgeMaterial));
+
+    // --- Theming ------------------------------------------------------------
+
+    /** Reads the live accent token so the scene follows the theme toggle. */
+    const applyThemeColour = () => {
+      const accent = getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent")
+        .trim();
+
+      if (!accent) return;
+
+      const colour = new THREE.Color(accent);
+      nodeMaterial.color = colour;
+      edgeMaterial.color = colour;
+
+      const dark = document.documentElement.classList.contains("dark");
+      nodeMaterial.opacity = dark ? 0.9 : 0.75;
+      edgeMaterial.opacity = dark ? 0.22 : 0.16;
+    };
+
+    applyThemeColour();
+
+    new MutationObserver(applyThemeColour).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // --- Sizing -------------------------------------------------------------
+
+    const resize = () => {
+      const { clientWidth: w, clientHeight: h } = container;
+      if (w === 0 || h === 0) return;
+
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+
+    resize();
+    new ResizeObserver(resize).observe(container);
+
+    // --- Interaction --------------------------------------------------------
+
+    const pointer = { x: 0, y: 0 };
+    const target = { x: 0, y: 0 };
+
+    window.addEventListener(
+      "pointermove",
+      (event) => {
+        target.x = (event.clientX / window.innerWidth - 0.5) * 0.5;
+        target.y = (event.clientY / window.innerHeight - 0.5) * 0.5;
+      },
+      { passive: true },
+    );
+
+    // --- Loop ---------------------------------------------------------------
+
+    let frame = 0;
+    let onScreen = true;
+    let running = false;
+
+    const render = () => {
+      if (!running) return;
+      frame = requestAnimationFrame(render);
+
+      // Ease toward the pointer so motion never snaps.
+      pointer.x += (target.x - pointer.x) * 0.04;
+      pointer.y += (target.y - pointer.y) * 0.04;
+
+      group.rotation.y += 0.0012;
+      group.rotation.x = pointer.y * 0.6;
+
+      // Sit the cloud to the right of the headline on wide screens so it
+      // never competes with the text for attention.
+      const offsetX = container.clientWidth > 1100 ? 7 : 2.5;
+      group.position.x = offsetX + pointer.x * 2.5;
+
+      renderer.render(scene, camera);
+    };
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      frame = requestAnimationFrame(render);
+    };
+
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(frame);
+    };
+
+    // Only animate while the hero is actually on screen and the tab is active.
+    new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        onScreen && !document.hidden ? start() : stop();
+      },
+      { threshold: 0 },
+    ).observe(container);
+
+    document.addEventListener("visibilitychange", () => {
+      document.hidden || !onScreen ? stop() : start();
+    });
+
+    start();
+    canvas.classList.remove("opacity-0");
+  }
+</script>

@@ -1,0 +1,447 @@
+@import "tailwindcss";
+
+/*
+ * Dark mode is class-driven (`.dark` on <html>) rather than media-driven, so the
+ * toggle in the header can override the OS preference. See `ThemeScript.astro`.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ * Palette
+ *
+ * Raw values live on :root / .dark; `@theme inline` maps them into Tailwind
+ * utilities. The `inline` keyword matters: it makes `bg-surface` compile to
+ * `var(--surface)` rather than a baked hex, so the utilities follow the theme
+ * switch at runtime.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --bg: #fcfcfd;
+  --surface: #ffffff;
+  --surface-2: #f4f4f6;
+  --border: #e4e4e8;
+  --border-strong: #d2d2d9;
+  --fg: #131316;
+  --fg-muted: #5c5c68;
+  --fg-subtle: #8b8b96;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-fg: #ffffff;
+  --accent-soft: #eef2ff;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --shadow-color: 240 6% 60%;
+}
+
+.dark {
+  --bg: #0a0a0d;
+  --surface: #121217;
+  --surface-2: #1a1a21;
+  --border: #26262f;
+  --border-strong: #34343f;
+  --fg: #f2f2f5;
+  --fg-muted: #a3a3b0;
+  --fg-subtle: #71717f;
+  --accent: #8b8cf8;
+  --accent-hover: #a5a6fa;
+  --accent-fg: #0a0a0d;
+  --accent-soft: #1c1c2e;
+  --success: #4ade80;
+  --success-soft: #0f2818;
+  --shadow-color: 240 10% 2%;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+
+  /* `--font-inter` / `--font-jetbrains` are emitted by Astro's Fonts API. */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
+
+  /* Reading measure for prose columns. */
+  --container-prose: 68ch;
+}
+
+/* ---------------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchored headings clear of the sticky header. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    /* Full-bleed decorations use `w-screen`, which counts the scrollbar and
+     * would otherwise overflow. `clip` (not `hidden`) avoids creating a scroll
+     * container, so the sticky header keeps working. */
+    overflow-x: clip;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Native cross-document view transitions — no client-side router needed. */
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * View transitions
+ *
+ * The page slides up and fades between documents; elements that carry a
+ * `view-transition-name` (a project card and its detail hero share one) morph
+ * across instead.
+ * ------------------------------------------------------------------------- */
+
+::view-transition-old(root) {
+  animation: vt-exit 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-enter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vt-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+@keyframes vt-enter {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
+/* The sticky header should stay put rather than slide with the page. */
+::view-transition-group(site-header) {
+  animation-duration: 0.3s;
+}
+
+/* ---------------------------------------------------------------------------
+ * Scroll reveal — see components/visuals/ScrollReveal.astro
+ *
+ * Gated on `.reveal-ready`, which the script only sets once it is running, so
+ * content is never left invisible when JS does not execute.
+ * ------------------------------------------------------------------------- */
+
+.reveal-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Prose — markdown rendered from content collections
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  .prose {
+    color: var(--fg-muted);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  .prose > * + * {
+    margin-top: 1.25em;
+  }
+
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    color: var(--fg);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    scroll-margin-top: 6rem;
+  }
+
+  .prose h2 {
+    margin-top: 2.5em;
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .prose h3 {
+    margin-top: 2em;
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
+
+  .prose h4 {
+    margin-top: 1.75em;
+    font-size: 1.0625rem;
+  }
+
+  .prose strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .prose a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1.5px;
+    transition: color 0.15s ease;
+  }
+
+  .prose a:hover {
+    color: var(--accent);
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5em;
+  }
+
+  .prose ul {
+    list-style-type: disc;
+  }
+
+  .prose ol {
+    list-style-type: decimal;
+  }
+
+  .prose li::marker {
+    color: var(--fg-subtle);
+  }
+
+  .prose li + li {
+    margin-top: 0.5em;
+  }
+
+  .prose blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1.25em;
+    font-style: italic;
+    color: var(--fg-muted);
+  }
+
+  .prose code:not(pre code) {
+    background-color: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 0.3rem;
+    padding: 0.15em 0.4em;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--fg);
+  }
+
+  .prose pre {
+    background-color: var(--surface-2) !important;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1.15rem 1.25rem;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .prose pre code {
+    font-family: var(--font-mono);
+  }
+
+  /* Shiki emits both themes; swap them with the theme class. */
+  .dark .prose .astro-code,
+  .dark .prose .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: transparent !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+  }
+
+  .prose img,
+  .prose video {
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+  }
+
+  .prose hr {
+    border-color: var(--border);
+    margin-block: 2.5em;
+  }
+
+  .prose table {
+    width: 100%;
+    font-size: 0.9375rem;
+    border-collapse: collapse;
+  }
+
+  .prose th,
+  .prose td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+
+  .prose th {
+    background-color: var(--surface-2);
+    color: var(--fg);
+    font-weight: 600;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Utilities
+ * ------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+ * Spotlight cards — see components/visuals/Spotlight.astro
+ * ------------------------------------------------------------------------- */
+
+@layer components {
+  .spotlight-card {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Soft highlight that follows the cursor, revealed on hover. */
+  .spotlight-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: radial-gradient(
+      16rem circle at var(--spot-x, 50%) var(--spot-y, 0),
+      color-mix(in oklab, var(--accent) 14%, transparent),
+      transparent 70%
+    );
+  }
+
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Hairline that brightens on hover, drawn over the fill. */
+  .spotlight-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: radial-gradient(
+      20rem circle at var(--spot-x, 50%) var(--spot-y, 0),
+      color-mix(in oklab, var(--accent) 55%, transparent),
+      transparent 65%
+    );
+    /* Mask the fill so only the 1px border shows. */
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .spotlight-card:hover::after {
+    opacity: 1;
+  }
+
+  /* Card content must sit above both pseudo-element layers. */
+  .spotlight-card > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

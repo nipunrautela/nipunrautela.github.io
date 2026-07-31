@@ -1,0 +1,39 @@
+{
+  "name": "nipunrautela.me",
+  "description": "Personal site and portfolio of Nipun Rautela",
+  "type": "module",
+  "version": "2.0.0",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://nipunrautela.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nipunrautela/nipunrautela.github.io.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "sync": "astro sync",
+    "assets": "node scripts/generate-assets.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.6",
+    "tailwindcss": "^4.3.3",
+    "three": "^0.185.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/three": "^0.185.1",
+    "typescript": "^6.0.3"
+  }
+}

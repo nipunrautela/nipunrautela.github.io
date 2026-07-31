@@ -1,0 +1,29 @@
+---
+/**
+ * Applies the stored theme before first paint to avoid a flash of the wrong
+ * colours. This must stay inline and render-blocking in <head>, so it is
+ * deliberately not a `<script>` that Astro would bundle and defer.
+ */
+---
+
+<script is:inline>
+  (() => {
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = stored ?? (prefersDark ? "dark" : "light");
+
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.style.colorScheme = theme;
+
+    // Follow the OS only while the user has not made an explicit choice.
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (event) => {
+        if (localStorage.getItem("theme")) return;
+        document.documentElement.classList.toggle("dark", event.matches);
+        document.documentElement.style.colorScheme = event.matches
+          ? "dark"
+          : "light";
+      });
+  })();
+</script>

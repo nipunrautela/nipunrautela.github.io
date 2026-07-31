@@ -1,0 +1,86 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import Tag from "../ui/Tag.astro";
+import { formatRange } from "../../lib/utils";
+
+interface Props {
+  entries: CollectionEntry<"experience">[];
+  /** `compact` hides bullet highlights — used on the home page. */
+  variant?: "default" | "compact";
+}
+
+const { entries, variant = "default" } = Astro.props;
+---
+
+<ol class="relative space-y-10 border-l border-border pl-7 sm:pl-9">
+  {
+    entries.map(({ data }) => (
+      <li class="relative">
+        <span
+          class="absolute -left-[calc(1.75rem+4.5px)] top-1.5 size-[9px] rounded-full border-2 border-bg bg-border-strong sm:-left-[calc(2.25rem+4.5px)]"
+          aria-hidden="true"
+        />
+
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h3 class="text-base font-semibold">
+            {data.role}
+            <span class="text-fg-subtle"> · </span>
+            {data.url ? (
+              <a
+                href={data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-fg-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+              >
+                {data.company}
+              </a>
+            ) : (
+              <span class="text-fg-muted">{data.company}</span>
+            )}
+          </h3>
+
+          <p class="font-mono text-xs whitespace-nowrap text-fg-subtle">
+            {formatRange(data.start, data.end)}
+          </p>
+        </div>
+
+        <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-fg-subtle">
+          <span class="inline-flex items-center gap-1.5">
+            <Icon name="map-pin" size={13} />
+            {data.location}
+          </span>
+          <span class="inline-flex items-center gap-1.5">
+            <Icon name="briefcase" size={13} />
+            {data.type}
+          </span>
+        </div>
+
+        {data.summary && (
+          <p class="mt-3 text-sm leading-relaxed text-fg-muted">{data.summary}</p>
+        )}
+
+        {variant === "default" && data.highlights.length > 0 && (
+          <ul class="mt-4 space-y-2.5">
+            {data.highlights.map((highlight) => (
+              <li class="flex gap-3 text-sm leading-relaxed text-fg-muted">
+                <Icon name="zap" size={14} class="mt-1 text-accent" />
+                <span>{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {data.stack.length > 0 && (
+          <ul class="mt-4 flex flex-wrap gap-1.5">
+            {data.stack.map((item) => (
+              <li>
+                <Tag>{item}</Tag>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    ))
+  }
+</ol>

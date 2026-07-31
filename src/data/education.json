@@ -1,0 +1,42 @@
+[
+  {
+    "id": "vit",
+    "institution": "Vellore Institute of Technology",
+    "qualification": "B.Tech",
+    "field": "Computer Science and Engineering",
+    "start": "Sep 2020",
+    "end": "Aug 2024",
+    "location": "Chennai, India",
+    "result": "CGPA 8.99",
+    "coursework": [
+      "Data Structures & Algorithms",
+      "Operating Systems",
+      "Computer Networks",
+      "DBMS",
+      "Object-Oriented Programming",
+      "Machine Learning",
+      "Deep Learning"
+    ],
+    "order": 30
+  },
+  {
+    "id": "gd-goenka-12",
+    "institution": "GD Goenka Public School",
+    "qualification": "Senior Secondary (Class XII), CBSE",
+    "start": "2018",
+    "end": "2020",
+    "result": "91%",
+    "coursework": [],
+    "order": 20
+  },
+  {
+    "id": "gd-goenka-10",
+    "institution": "GD Goenka Public School",
+    "qualification": "Secondary (Class X), CBSE",
+    "start": "2016",
+    "end": "2018",
+    "result": "88%",
+    "coursework": [],
+    "order": 10
+  }
+]

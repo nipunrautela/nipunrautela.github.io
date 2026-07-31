@@ -1,0 +1,151 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "../layouts/PageLayout.astro";
+import ExperienceTimeline from "../components/sections/ExperienceTimeline.astro";
+import SkillGrid from "../components/sections/SkillGrid.astro";
+import Button from "../components/ui/Button.astro";
+import Icon from "../components/ui/Icon.astro";
+import Tag from "../components/ui/Tag.astro";
+import { PROFILE, SOCIALS } from "../site.config";
+import { formatRange, isPublished, sortByDate } from "../lib/utils";
+
+const experience = (await getCollection("experience")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+const education = (await getCollection("education")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+const skills = (await getCollection("skills")).sort(
+  (a, b) => b.data.order - a.data.order,
+);
+const projects = sortByDate(
+  (await getCollection("projects", isPublished)).filter((p) => p.data.featured),
+);
+---
+
+<PageLayout
+  title="Résumé"
+  description={`Résumé of ${PROFILE.name} — ${PROFILE.role}. Experience, education, skills and selected projects.`}
+  heading="Résumé"
+  eyebrow="Curriculum vitae"
+  lede={`${PROFILE.role} · ${PROFILE.location}`}
+>
+  <div class="space-y-14">
+    <div class="flex flex-wrap items-center gap-3">
+      <Button
+        href={PROFILE.resume.href}
+        icon="download"
+        iconPosition="start"
+        external
+      >
+        Download PDF
+      </Button>
+      <a
+        href={`mailto:${PROFILE.email}`}
+        class="inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-accent"
+      >
+        <Icon name="mail" size={15} />
+        {PROFILE.email}
+      </a>
+      {
+        SOCIALS.map((social) => (
+          <a
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-sm text-fg-muted transition-colors hover:text-accent"
+          >
+            <Icon name={social.icon} size={15} />
+            {social.label}
+          </a>
+        ))
+      }
+    </div>
+
+    <section>
+      <h2
+        class="mb-6 border-b border-border pb-2 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase"
+      >
+        Experience
+      </h2>
+      <ExperienceTimeline entries={experience} />
+    </section>
+
+    <section>
+      <h2
+        class="mb-6 border-b border-border pb-2 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase"
+      >
+        Education
+      </h2>
+      <ol class="space-y-6">
+        {
+          education.map(({ data }) => (
+            <li>
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                <h3 class="font-semibold">
+                  {data.qualification}
+                  {data.field && (
+                    <span class="font-normal text-fg-muted"> · {data.field}</span>
+                  )}
+                </h3>
+                <p class="font-mono text-xs whitespace-nowrap text-fg-subtle">
+                  {formatRange(data.start, data.end)}
+                </p>
+              </div>
+              <p class="mt-1 flex flex-wrap items-center gap-x-3 text-sm text-fg-muted">
+                <span>{data.institution}</span>
+                {data.result && <Tag variant="accent">{data.result}</Tag>}
+              </p>
+              {data.coursework.length > 0 && (
+                <p class="mt-2 text-sm text-fg-subtle">
+                  {data.coursework.join(" · ")}
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section>
+      <h2
+        class="mb-6 border-b border-border pb-2 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase"
+      >
+        Skills
+      </h2>
+      <SkillGrid groups={skills} />
+    </section>
+
+    {
+      projects.length > 0 && (
+        <section>
+          <h2 class="mb-6 border-b border-border pb-2 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase">
+            Selected projects
+          </h2>
+          <ul class="space-y-5">
+            {projects.map((project) => (
+              <li>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                  <h3 class="font-semibold">
+                    <a
+                      href={`/work/${project.id}/`}
+                      class="underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                    >
+                      {project.data.title}
+                    </a>
+                  </h3>
+                  <p class="font-mono text-xs text-fg-subtle">
+                    {project.data.date.getFullYear()}
+                  </p>
+                </div>
+                <p class="mt-1 text-sm leading-relaxed text-fg-muted">
+                  {project.data.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</PageLayout>

@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Button from "../components/ui/Button.astro";
+import { NAV } from "../site.config";
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page doesn't exist."
+  noindex
+>
+  <div
+    class="mx-auto flex min-h-[60svh] max-w-2xl flex-col items-center justify-center px-5 py-20 text-center sm:px-8"
+  >
+    <p class="font-mono text-sm tracking-[0.2em] text-accent">404</p>
+
+    <h1 class="mt-4 text-3xl font-semibold sm:text-4xl">Page not found</h1>
+
+    <p class="mt-4 text-fg-muted">
+      That link doesn't lead anywhere. It may have moved, or it may never have
+      existed.
+    </p>
+
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <Button href="/" icon="arrow-right">Back home</Button>
+      <Button href="/#work" variant="secondary">See my work</Button>
+    </div>
+
+    <nav class="mt-12" aria-label="Site sections">
+      <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+        {
+          NAV.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="text-sm text-fg-subtle transition-colors hover:text-fg"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</BaseLayout>

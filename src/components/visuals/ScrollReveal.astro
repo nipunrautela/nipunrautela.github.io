@@ -1,0 +1,42 @@
+---
+/**
+ * Reveals elements marked `data-reveal` as they enter the viewport.
+ *
+ * Opt in by adding `data-reveal` to any element; add `data-reveal-delay="120"`
+ * (milliseconds) to stagger siblings. Elements start hidden only once the
+ * script confirms IntersectionObserver support, so with JS disabled or broken
+ * everything stays visible.
+ */
+---
+
+<script>
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+
+  if (!reducedMotion && "IntersectionObserver" in window) {
+    // Applied from JS so no-JS visitors never get stuck on the hidden state.
+    document.documentElement.classList.add("reveal-ready");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+
+          const element = entry.target as HTMLElement;
+          const delay = Number(element.dataset.revealDelay ?? 0);
+
+          setTimeout(() => element.classList.add("is-revealed"), delay);
+          observer.unobserve(element);
+        }
+      },
+      // Fire slightly before the element reaches the fold so the motion has
+      // finished by the time it is properly in view.
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
+    );
+
+    for (const target of targets) observer.observe(target);
+  }
+</script>

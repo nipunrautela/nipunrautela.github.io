@@ -1,0 +1,66 @@
+---
+import Icon from "./Icon.astro";
+
+/**
+ * A titled page section with an optional "see all" affordance on the right.
+ * Used to keep vertical rhythm consistent across the home and detail pages.
+ */
+interface Props {
+  title: string;
+  /** Small uppercase kicker above the title. */
+  eyebrow?: string;
+  description?: string;
+  /** Renders a trailing link in the section header. */
+  link?: { href: string; label: string };
+  id?: string;
+  class?: string;
+}
+
+const {
+  title,
+  eyebrow,
+  description,
+  link,
+  id,
+  class: className = "",
+} = Astro.props;
+---
+
+<section id={id} class={`py-14 sm:py-20 ${className}`}>
+  <div
+    class="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 sm:mb-10"
+    data-reveal
+  >
+    <div class="max-w-xl">
+      {
+        eyebrow && (
+          <p class="mb-2 font-mono text-xs tracking-[0.15em] text-fg-subtle uppercase">
+            {eyebrow}
+          </p>
+        )
+      }
+      <h2 class="text-2xl font-semibold sm:text-3xl">{title}</h2>
+      {description && <p class="mt-3 text-fg-muted">{description}</p>}
+    </div>
+
+    {
+      link && (
+        <a
+          href={link.href}
+          class="group inline-flex items-center gap-1.5 text-sm font-medium text-fg-muted transition-colors hover:text-accent"
+        >
+          {link.label}
+          <Icon
+            name="arrow-right"
+            size={15}
+            class="transition-transform duration-200 group-hover:translate-x-0.5"
+          />
+        </a>
+      )
+    }
+  </div>
+
+  <div data-reveal data-reveal-delay="90">
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "languages",
+    "category": "Languages",
+    "items": ["Python", "Java", "C++", "TypeScript", "JavaScript", "SQL", "Bash"],
+    "order": 50
+  },
+  {
+    "id": "frameworks",
+    "category": "Frameworks",
+    "items": ["Spring Boot", "Spring", "React", "Angular", "Express.js", "Astro"],
+    "order": 40
+  },
+  {
+    "id": "cloud",
+    "category": "Cloud & Infrastructure",
+    "items": [
+      "Azure",
+      "Azure Kubernetes Service",
+      "Azure Key Vault",
+      "Kubernetes",
+      "Docker",
+      "Harbor"
+    ],
+    "order": 30
+  },
+  {
+    "id": "data",
+    "category": "Data",
+    "items": ["PostgreSQL", "MySQL", "MongoDB", "Firebase", "Power BI"],
+    "order": 20
+  },
+  {
+    "id": "tooling",
+    "category": "Tooling",
+    "items": ["Git", "Jenkins", "GitHub Actions", "JFrog", "Linux"],
+    "order": 10
+  }
+]
