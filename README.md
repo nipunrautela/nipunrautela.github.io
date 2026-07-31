@@ -15,14 +15,14 @@ Requires Node 22 or later.
 
 ## Routes
 
-The portfolio itself is **one page**. About, experience, work and contact are
+The portfolio itself is **one page**. About, experience, projects and contact are
 sections of `/`, and the header links to them as anchors with scroll-spy
 highlighting. Only content that wants its own URL gets a route:
 
 | Route | What it is |
 | --- | --- |
-| `/` | The portfolio — hero, about, skills, experience, education, work, recent writing, contact |
-| `/work/<slug>/` | Project write-up, one per file in `src/content/projects/` |
+| `/` | The portfolio — hero, about, skills, experience, education, projects, recent writing, contact |
+| `/projects/<slug>/` | Project write-up, one per file in `src/content/projects/` |
 | `/blog/` | Post index with tag filters |
 | `/blog/<slug>/` | A post |
 | `/blog/tags/<tag>/` | Posts by tag |
@@ -38,7 +38,7 @@ src/
 ├── content.config.ts   # collection schemas — the contract for all content
 ├── data/               # CV data as JSON (experience, education, skills)
 ├── content/
-│   ├── projects/       # one markdown file per project → /work/<slug>/
+│   ├── projects/       # one markdown file per project → /projects/<slug>/
 │   ├── blog/           # one markdown file per post → /blog/<slug>/
 │   └── pages/          # prose for /uses and /now
 ├── components/
@@ -110,8 +110,8 @@ status: "shipped" # shipped | in-progress | archived
 Markdown body.
 ```
 
-The project appears in the Work section of the home page automatically, and gets
-its own page at `/work/<slug>/`. Categories drive the filter chips — add a value
+The project appears in the Projects section of the home page automatically, and gets
+its own page at `/projects/<slug>/`. Categories drive the filter chips — add a value
 to the enum in `content.config.ts` and the chip appears.
 
 `featured: true` currently only affects the Selected Projects list on

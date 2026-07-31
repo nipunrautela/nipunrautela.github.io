@@ -13,7 +13,7 @@ interface Props {
 
 const { project, variant = "default" } = Astro.props;
 const { data } = project;
-const href = `/work/${project.id}/`;
+const href = `/projects/${project.id}/`;
 const year = data.date.getFullYear();
 
 /**

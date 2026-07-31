@@ -36,7 +36,7 @@ const next = all[index - 1];
   cover={data.cover}
   coverAlt={data.coverAlt}
   eyebrow={data.category}
-  backLink={{ href: "/#work", label: "All work" }}
+  backLink={{ href: "/#projects", label: "All projects" }}
   transitionName={`project-${project.id}`}
 >
   <Content />
@@ -73,7 +73,7 @@ const next = all[index - 1];
         >
           {previous ? (
             <a
-              href={`/work/${previous.id}/`}
+              href={`/projects/${previous.id}/`}
               class="group rounded-xl border border-border p-4 transition-colors hover:border-border-strong"
             >
               <p class="font-mono text-xs text-fg-subtle">Previous</p>
@@ -87,7 +87,7 @@ const next = all[index - 1];
 
           {next && (
             <a
-              href={`/work/${next.id}/`}
+              href={`/projects/${next.id}/`}
               class="group rounded-xl border border-border p-4 text-right transition-colors hover:border-border-strong sm:col-start-2"
             >
               <p class="font-mono text-xs text-fg-subtle">Next</p>

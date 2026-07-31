@@ -71,7 +71,7 @@ const projects = defineCollection({
       description: z.string(),
       /** Sorts the listing, newest first. */
       date: z.coerce.date(),
-      /** Drives the filter chips on /work. */
+      /** Drives the filter chips in the Projects section. */
       category: z.enum([
         "Backend",
         "Cloud",

@@ -10,7 +10,7 @@ export function normalizePath(path: string): string {
  * True when `current` is `href` or lives beneath it, so `/blog/my-post/`
  * highlights the "Writing" nav item. `/` only ever matches itself.
  *
- * Anchor links (`/#work`) always return false here — there is no hash at build
+ * Anchor links (`/#projects`) always return false here — there is no hash at build
  * time, so the header's scroll-spy script owns their state on the client.
  */
 export function isActivePath(current: string, href: string): boolean {
