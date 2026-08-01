@@ -13,7 +13,7 @@ export const SITE = {
   /** `%s` is replaced by the per-page title. */
   titleTemplate: "%s · Nipun Rautela",
   description:
-    "Software engineer at Visa. I take monoliths apart into event-driven systems and keep them running through the change. Java/Spring, Hazelcast, Azure and Kubernetes.",
+    "Software engineer at Visa, building scalable distributed systems: event-driven, active-active and multi-region. Java/Spring, Hazelcast, Azure and Kubernetes.",
   locale: "en",
   /** Shown in the footer next to the copyright. */
   startYear: 2022,
@@ -26,7 +26,7 @@ export const PROFILE = {
   role: "Software Engineer",
   /** The one-liner at the top of the home page. Keep it to a sentence or two. */
   headline:
-    "I take monoliths apart into event-driven systems — and keep them serving traffic the whole way through.",
+    "I build software that scales, self-heals, and stays online through change.",
   location: "Bangalore, India",
   email: "rautelanipun@gmail.com",
 
@@ -41,9 +41,9 @@ export const PROFILE = {
 
   /** Home page "about" paragraphs. Plain strings, rendered in order. */
   intro: [
-    "I'm a software engineer at Visa, working on an Ansible automation orchestration platform as it moves off a large BPMN monolith and onto event-driven processors — self-healing active-active queues, a cross-region scheduler, and the migration machinery that let all of it ship without a minute of downtime.",
+    "I'm a software engineer at Visa, working on an Ansible automation orchestration platform as it moves off a large BPMN monolith and onto event-driven processors, built on self-healing active-active queues, a cross-region scheduler, and the migration machinery that let all of it ship without a minute of downtime.",
     "Before that, close to two years at Societe Generale Global Solution Centre: moving on-premise applications onto Azure, automating the parts of that migration nobody wants to do twice, and taking a nightly database job from five and a half hours down to three.",
-    "The through-line is systems other people depend on. I'm drawn to the problems where correctness under failure matters more than throughput on a good day — in-flight state you can't drop, cutovers that can't take an outage, and jobs that have to fire across two data centres and still run exactly once.",
+    "The through-line is systems other people depend on. I'm drawn to the problems where correctness under failure matters more than throughput on a good day: in-flight state you can't drop, cutovers that can't take an outage, and jobs that have to fire across two data centres and still run exactly once.",
   ],
 
   resume: {
