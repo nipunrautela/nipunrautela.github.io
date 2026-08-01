@@ -16,7 +16,7 @@ const outDir = join(root, "public");
 
 const NAME = "Nipun Rautela";
 const ROLE = "Software Engineer";
-const TAGLINE = "Cloud infrastructure · Backend systems";
+const TAGLINE = "Distributed systems · Event-driven backends";
 const DOMAIN = "nipunrautela.me";
 
 const BG = "#0a0a0d";
