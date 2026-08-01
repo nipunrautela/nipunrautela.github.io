@@ -1,27 +1,33 @@
 ---
 title: "Now"
 description: "What I'm focused on at the moment."
-updatedDate: 2026-07-31
+updatedDate: 2026-08-01
 ---
 
 This is a [now page](https://nownownow.com/about) — a snapshot of what has my
 attention at the moment, rather than a record of everything I have done.
 
-## Looking for the next thing
+## Taking a monolith apart
 
-I wrapped up close to two years at Societe Generale Global Solution Centre in
-October 2025, working on cloud platform migration and the backend systems around
-it. I am currently looking for my next role — ideally something in platform,
-infrastructure or backend engineering where the problems are genuinely
-distributed.
+Since October 2025 I have been at Visa, working on an Ansible automation
+orchestration platform that is being re-architected out of a large Activiti BPMN
+and polling-based monolith into segregated event-driven processors, on top of
+custom self-healing active-active Hazelcast queues.
 
-If that sounds like your team, [get in touch](/contact/).
+The interesting part is never the new architecture. It is getting there without
+an outage — reconstructing the state of every in-flight execution and parking it
+until the new processors are ready to pick it up, so the cutover is invisible to
+everyone using the platform.
 
-## Building
+Adjacent to that: a token-bucket rate limiter that internal callers can no longer
+accidentally take the platform down with, and a cross-region dual-DC scheduler
+that replaced a Quartz setup which had been quietly misfiring.
 
-Rebuilding this site properly. The old one was a template with my details typed
-into it; this one is content-driven, so adding a project or a post is a markdown
-file rather than a merge conflict waiting to happen.
+## Still listening
+
+I am happy where I am, but I keep the door open. If you are working on genuinely
+distributed problems — the kind where failure modes matter more than benchmarks —
+I am glad to talk. [Get in touch](/#contact).
 
 ## Reading and learning
 
@@ -30,11 +36,16 @@ modes you only meet at scale. The gap between "I have operated Kubernetes" and "
 understand why it makes the choices it does" is wider than it looks from the
 operator's side, and I would like to close it.
 
+Also spending time on the agent tooling side of things: MCP, the LLM SDKs, and
+what A2A actually buys you once more than one agent is involved.
+
 ## Writing
 
 Slowly. There is a backlog of things I learned in the last two years that are
-worth writing down before I forget the details that made them interesting.
+worth writing down before I forget the details that made them interesting — the
+nightly job I parallelized is [written up here](/blog/), and the parking-lot
+migration deserves the same treatment.
 
 ---
 
-*Last updated 31 July 2026.*
+*Last updated 1 August 2026.*

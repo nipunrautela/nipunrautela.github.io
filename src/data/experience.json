@@ -1,5 +1,35 @@
 [
   {
+    "id": "visa",
+    "company": "Visa",
+    "role": "Software Engineer",
+    "start": "Oct 2025",
+    "end": null,
+    "location": "Bangalore, India",
+    "type": "Full-time",
+    "url": "https://www.visa.co.in/",
+    "summary": "Breaking an Ansible automation orchestration platform out of its monolith and into event-driven processors — without ever taking it down.",
+    "highlights": [
+      "Worked on the re-architecture of a large Activiti BPMN and polling-based monolith into segregated event-driven processors backed by custom self-healing active-active Hazelcast queues, cutting platform-level execution overhead by over 60% and code smell by 70%.",
+      "Designed and built a parking-lot system that migrated every in-flight execution onto the new architecture with full state reconstruction, making the event-driven cutover a zero-downtime deployment.",
+      "Designed and implemented a token-bucket rate limiter scoped at user and global level, enforced by annotation and overridable via API — closing off denial-of-service by internal callers while still allowing elevated access where it was warranted.",
+      "Replaced a misfire-prone custom Quartz setup with a cross-region dual-DC job scheduler, taking misfires to zero and tightening trigger lag from ±20s to ±5s.",
+      "Found non-compliant handling of the change life-cycle in the application and drove the fix with the ITSM team — documenting and remediating the flow before it became a penalty."
+    ],
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "Hazelcast",
+      "Event-Driven Architecture",
+      "Activiti BPMN",
+      "Quartz",
+      "Ansible",
+      "PostgreSQL",
+      "Grafana"
+    ],
+    "order": 40
+  },
+  {
     "id": "societe-generale",
     "company": "Societe Generale Global Solution Centre",
     "role": "Software Engineer",
@@ -13,6 +43,7 @@
       "Architected multiple on-premise applications onto Azure — AKS, Azure PostgreSQL, DNS, certificates and Key Vault — and automated the provisioning, cutting deployment effort by 80%.",
       "Automated 90% of the blue-green migration for AKS, covering resource migration, network redirection and access re-provisioning, improving migration efficiency threefold.",
       "Led the migration of every Docker image from Mirantis Secure Registry to Harbor, writing the Jenkins pipelines and Dockerfiles for the new workflow.",
+      "Owned the team's other structural migrations end to end — Nexus to JFrog for artifacts, and Jenkins to GitHub Actions for CI.",
       "Optimized C-shell and pl/pgsql database scripts by parallelizing independent business logic, taking a nightly job from 5.5 hours to 3.",
       "Migrated Excel-based VBA solutions to Python cloud functions, removing platform dependency entirely and backing them with tests at 70% coverage.",
       "Built features across Java/Spring Boot services with React and Angular front-ends in an agile team, and added API-based data fetching for compliance by decomposing complex SQL queries while holding response-time overhead under 5%."

@@ -2,14 +2,36 @@
   {
     "id": "languages",
     "category": "Languages",
-    "items": ["Python", "Java", "C++", "TypeScript", "JavaScript", "SQL", "Bash"],
-    "order": 50
+    "items": ["Java", "Python", "C++", "TypeScript", "JavaScript", "SQL", "Bash"],
+    "order": 70
   },
   {
     "id": "frameworks",
     "category": "Frameworks",
-    "items": ["Spring Boot", "Spring", "React", "Angular", "Express.js", "Astro"],
-    "order": 40
+    "items": [
+      "Spring Boot",
+      "FastAPI",
+      "Express.js",
+      "React",
+      "Angular",
+      "Activiti BPMN",
+      "Quartz",
+      "Astro"
+    ],
+    "order": 60
+  },
+  {
+    "id": "distributed",
+    "category": "Distributed Systems",
+    "items": [
+      "Event-Driven Architecture",
+      "Active-Active",
+      "Multi-Region",
+      "Self-Healing Queues",
+      "Rate Limiting",
+      "Job Scheduling"
+    ],
+    "order": 50
   },
   {
     "id": "cloud",
@@ -20,20 +42,44 @@
       "Azure Key Vault",
       "Kubernetes",
       "Docker",
+      "Ansible (AWX)",
       "Harbor"
+    ],
+    "order": 40
+  },
+  {
+    "id": "data",
+    "category": "Data & Caching",
+    "items": [
+      "PostgreSQL",
+      "MySQL",
+      "ClickHouse",
+      "Hazelcast",
+      "Ehcache",
+      "Power BI"
     ],
     "order": 30
   },
   {
-    "id": "data",
-    "category": "Data",
-    "items": ["PostgreSQL", "MySQL", "MongoDB", "Firebase", "Power BI"],
+    "id": "tooling",
+    "category": "Build, Test & Observability",
+    "items": [
+      "Git",
+      "Maven",
+      "Jenkins",
+      "GitHub Actions",
+      "JFrog",
+      "JUnit 5",
+      "Grafana",
+      "uv",
+      "Linux"
+    ],
     "order": 20
   },
   {
-    "id": "tooling",
-    "category": "Tooling",
-    "items": ["Git", "Jenkins", "GitHub Actions", "JFrog", "Linux"],
+    "id": "ai",
+    "category": "AI Engineering",
+    "items": ["Model Context Protocol", "LLM SDKs", "A2A"],
     "order": 10
   }
 ]
