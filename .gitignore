@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # windows crash dumps
 *.stackdump
+
+# local learning notes
+learning/
