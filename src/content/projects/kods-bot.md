@@ -1,6 +1,6 @@
 ---
 title: "KoDS Bot"
-description: "A Discord bot running an RPG-style guild of 300+ members — profiles, inventory, reputation and moderation."
+description: "A Discord bot running an RPG-style guild of 300+ members: profiles, inventory, reputation and moderation."
 date: 2022-08-14
 category: "Backend"
 tags: ["Python", "discord.py", "MongoDB", "Bots"]
@@ -17,7 +17,7 @@ record: who you are, what you own, and how much everyone else trusts you.
 
 ## What it does
 
-**Profiles.** Every member gets a persistent profile — a bio, a status line, and
+**Profiles.** Every member gets a persistent profile: a bio, a status line, and
 a set of stats that other systems read from and write to.
 
 **Inventory.** Items can be granted, traded and consumed. The interesting part

@@ -35,7 +35,7 @@ procedure rather than trusting the comments.
 
 Two things fell out of that:
 
-- Several "dependencies" were coincidental — step B read a table step A wrote,
+- Several "dependencies" were coincidental: step B read a table step A wrote,
   but only columns that step A never touched.
 - One genuine dependency was undocumented and would have been a genuinely bad
   bug to discover in production.
@@ -61,13 +61,13 @@ wait
 
 The `wait` is doing real work there. Without it the reconcile step starts against
 half-loaded tables and produces results that are wrong in a way that looks
-plausible — the worst failure mode available.
+plausible, which is the worst failure mode available.
 
 ## What it did not fix
 
 Runtime went from 5.5 hours to 3. The remaining three hours are dominated by one
 genuinely serial stage that everything else depends on, and no amount of
-scheduling changes that. Making *that* faster is a different problem — it needs
+scheduling changes that. Making *that* faster is a different problem: it needs
 query-level work or a change to the data model, not concurrency.
 
 Which is the honest summary: parallelization bought back the time that was being

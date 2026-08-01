@@ -10,8 +10,8 @@ schedule.
 ## Editor and terminal
 
 - **VS Code** for most things, with Vim keybindings.
-- **JetBrains IntelliJ IDEA** whenever I am deep in a Java or Spring codebase —
-  the refactoring tools still have no real equivalent.
+- **JetBrains IntelliJ IDEA** whenever I am deep in a Java or Spring codebase.
+  The refactoring tools still have no real equivalent.
 - **Windows Terminal** with PowerShell 7, plus WSL2 for anything that expects a
   POSIX environment.
 - **JetBrains Mono** at 14px, which is also the monospace face on this site.
@@ -21,7 +21,7 @@ schedule.
 - **Java / Spring Boot** for services that need to be maintained by a team, with
   **Maven** and **JUnit 5** around them.
 - **Python** for anything data-shaped, scripted, or that needs to exist by the
-  end of the afternoon — **uv** for environments, these days.
+  end of the afternoon. **uv** for environments, these days.
 - **TypeScript** everywhere on the front end. Untyped JavaScript at any real size
   is a false economy.
 - **Bash / C-shell** for the glue, kept short enough to still be readable in a
@@ -29,7 +29,7 @@ schedule.
 
 ## Infrastructure
 
-- **Azure** — AKS, Azure PostgreSQL, Key Vault, Container Registry.
+- **Azure**: AKS, Azure PostgreSQL, Key Vault, Container Registry.
 - **Kubernetes** and **Docker**, with **Harbor** for registry.
 - **Hazelcast** when state has to be shared across nodes and survive losing one.
 - **Ansible** (via AWX) for orchestration that has to be repeatable and auditable.
@@ -44,6 +44,6 @@ schedule.
 - **Git** from the command line, and `git add -p` more than any other command.
 - **PostgreSQL** as the default database until something proves it should not be.
 - **Obsidian** for notes, in plain markdown so they outlive the app.
-- **Astro** for this site — the
+- **Astro** for this site. The
   [source is on GitHub](https://github.com/nipunrautela/nipunrautela.github.io),
   README included.

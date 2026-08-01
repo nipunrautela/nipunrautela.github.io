@@ -10,7 +10,7 @@ repo: "https://github.com/nipunrautela/whatsapp_clone"
 status: "archived"
 ---
 
-A rebuild of the WhatsApp interface in Flutter — tab navigation, chat list, chat
+A rebuild of the WhatsApp interface in Flutter: tab navigation, chat list, chat
 view, and the small interaction details that make an interface feel finished.
 
 ## Why

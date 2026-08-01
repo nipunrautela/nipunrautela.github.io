@@ -4,7 +4,7 @@ description: "What I'm focused on at the moment."
 updatedDate: 2026-08-01
 ---
 
-This is a [now page](https://nownownow.com/about) — a snapshot of what has my
+This is a [now page](https://nownownow.com/about): a snapshot of what has my
 attention at the moment, rather than a record of everything I have done.
 
 ## Taking a monolith apart
@@ -15,7 +15,7 @@ and polling-based monolith into segregated event-driven processors, on top of
 custom self-healing active-active Hazelcast queues.
 
 The interesting part is never the new architecture. It is getting there without
-an outage — reconstructing the state of every in-flight execution and parking it
+an outage, by reconstructing the state of every in-flight execution and parking it
 until the new processors are ready to pick it up, so the cutover is invisible to
 everyone using the platform.
 
@@ -26,12 +26,12 @@ that replaced a Quartz setup which had been quietly misfiring.
 ## Still listening
 
 I am happy where I am, but I keep the door open. If you are working on genuinely
-distributed problems — the kind where failure modes matter more than benchmarks —
+distributed problems, the kind where failure modes matter more than benchmarks,
 I am glad to talk. [Get in touch](/#contact).
 
 ## Reading and learning
 
-Going deeper on distributed systems fundamentals — consensus, and the failure
+Going deeper on distributed systems fundamentals: consensus, and the failure
 modes you only meet at scale. The gap between "I have operated Kubernetes" and "I
 understand why it makes the choices it does" is wider than it looks from the
 operator's side, and I would like to close it.
@@ -42,7 +42,7 @@ what A2A actually buys you once more than one agent is involved.
 ## Writing
 
 Slowly. There is a backlog of things I learned in the last two years that are
-worth writing down before I forget the details that made them interesting — the
+worth writing down before I forget the details that made them interesting. The
 nightly job I parallelized is [written up here](/blog/), and the parking-lot
 migration deserves the same treatment.
 

@@ -17,7 +17,7 @@ trip to the shop.
 ## Design
 
 The interesting constraint is that recipe matching is not a simple set
-intersection — a recipe you can *almost* make is often more useful than one you
+intersection. A recipe you can *almost* make is often more useful than one you
 can make exactly, provided the missing item is salt rather than saffron. The
 ranking therefore weights matches by how central each missing ingredient is to
 the dish.

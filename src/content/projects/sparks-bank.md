@@ -18,7 +18,7 @@ that reconciles with both.
 
 The build focused on the parts of a banking UI that are easy to get subtly wrong.
 Transfers validate against the source balance before they are recorded, and the
-ledger is append-only — a corrected transaction produces a reversing entry rather
+ledger is append-only, so a corrected transaction produces a reversing entry rather
 than editing history, which is how it works in practice.
 
 The transaction list is filterable by date range and account, because a ledger

@@ -28,7 +28,7 @@ grow does.
 The core is a small stepper: each algorithm is written as a generator that yields
 its state after every meaningful operation, and the renderer draws whatever the
 current state is. Separating the algorithm from the drawing meant adding a new
-algorithm required no rendering code at all — just another generator.
+algorithm required no rendering code at all, just another generator.
 
 Speed control, pause and step-forward all fall out of that design for free, since
 the UI is simply deciding how fast to pull from the generator.

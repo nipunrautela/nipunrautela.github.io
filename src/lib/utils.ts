@@ -40,7 +40,7 @@ export function formatMonth(date: Date): string {
 
 /** Renders an experience/education span, treating a null end as ongoing. */
 export function formatRange(start: string, end: string | null): string {
-  return `${start} — ${end ?? "Present"}`;
+  return `${start} - ${end ?? "Present"}`;
 }
 
 /** Rough reading time from word count, floored at one minute. */
