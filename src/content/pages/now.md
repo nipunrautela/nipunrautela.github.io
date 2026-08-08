@@ -43,8 +43,8 @@ what A2A actually buys you once more than one agent is involved.
 
 Slowly. There is a backlog of things I learned in the last two years that are
 worth writing down before I forget the details that made them interesting. The
-nightly job I parallelized is [written up here](/blog/), and the parking-lot
-migration deserves the same treatment.
+nightly job I parallelized and the parking-lot migration both deserve that
+treatment.
 
 ---
 
