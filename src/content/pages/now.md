@@ -10,10 +10,10 @@ attention at the moment, rather than a record of everything I have done.
 ## Building distributed systems
 
 Most of my time goes into building distributed systems and taking a monolith
-apart to get there. Since October 2025 I have been at Visa, working on an Ansible
-automation orchestration platform that is being re-architected out of a large
-Activiti BPMN and polling-based monolith into segregated event-driven processors,
-on top of custom self-healing active-active Hazelcast queues.
+apart to get there. Right now that is an automation orchestration platform
+running 25,000 executions a day, being re-architected out of a large polling-based
+BPMN monolith into segregated event-driven processors, on top of custom
+self-healing active-active Hazelcast queues.
 
 The interesting part is never the new architecture. It is getting there without
 an outage, by reconstructing the state of every in-flight execution and parking it

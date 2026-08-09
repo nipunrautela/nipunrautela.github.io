@@ -13,7 +13,7 @@ export const SITE = {
   /** `%s` is replaced by the per-page title. */
   titleTemplate: "%s · Nipun Rautela",
   description:
-    "Software engineer at Visa, building scalable distributed systems: event-driven, active-active and multi-region. Java/Spring, Hazelcast, Azure and Kubernetes.",
+    "Software engineer building large-scale distributed backends: event-driven, active-active and multi-region. Java/Spring, Hazelcast, Azure and Kubernetes.",
   locale: "en",
   /** Shown in the footer next to the copyright. */
   startYear: 2022,
@@ -26,7 +26,7 @@ export const PROFILE = {
   role: "Software Engineer",
   /** The one-liner at the top of the home page. Keep it to a sentence or two. */
   headline:
-    "I build software that scales, self-heals, and stays online through change.",
+    "I build large-scale distributed backends that scale, self-heal, and stay online through change.",
   location: "Bangalore, India",
   email: "rautelanipun@gmail.com",
 
@@ -41,8 +41,9 @@ export const PROFILE = {
 
   /** Home page "about" paragraphs. Plain strings, rendered in order. */
   intro: [
-    "I'm a software engineer at Visa, working on an Ansible automation orchestration platform as it moves off a large BPMN monolith and onto event-driven processors, built on self-healing active-active queues, a cross-region scheduler, and the migration machinery that let all of it ship without a minute of downtime.",
-    "Before that, close to two years at Societe Generale Global Solution Centre: moving on-premise applications onto Azure, automating the parts of that migration nobody wants to do twice, and taking a nightly database job from five and a half hours down to three.",
+    "I'm a backend engineer working on large-scale distributed systems: event-driven services, self-healing active-active clusters, cross-region schedulers, and the migration machinery that lets platforms change shape underneath their users without going offline. Most of what I build is orchestration at volume, where a request is not one call but hundreds of moving executions that all have to land.",
+    "The work is mostly the unglamorous half of a backend: designing service boundaries and APIs, moving live state between two architectures without dropping any of it, rate limiting the callers that would otherwise take the platform down, and putting enough observability in place to know what actually happened at 3am. Around that sits the ordinary craft, tests worth trusting, pipelines that deploy without ceremony, and cloud infrastructure and CI provisioned as code rather than by hand.",
+    "I also spend time on the tooling that makes all of this testable: simulators that stand in for systems too expensive to hit for real, and, lately, tool-calling LLM agents layered over them so the tedious parts of the job take minutes instead of an afternoon.",
     "The through-line is systems other people depend on. I'm drawn to the problems where correctness under failure matters more than throughput on a good day: in-flight state you can't drop, cutovers that can't take an outage, and jobs that have to fire across two data centres and still run exactly once.",
   ],
 

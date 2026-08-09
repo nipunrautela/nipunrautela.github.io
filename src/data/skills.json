@@ -2,7 +2,16 @@
   {
     "id": "languages",
     "category": "Languages",
-    "items": ["Java", "Python", "C++", "TypeScript", "JavaScript", "SQL", "Bash"],
+    "items": [
+      "Java",
+      "Python",
+      "C++",
+      "TypeScript",
+      "JavaScript",
+      "SQL",
+      "pl/pgSQL",
+      "Bash"
+    ],
     "order": 70
   },
   {
@@ -12,6 +21,7 @@
       "Spring Boot",
       "FastAPI",
       "Express.js",
+      "REST APIs",
       "React",
       "Angular",
       "Activiti BPMN",
@@ -24,12 +34,14 @@
     "id": "distributed",
     "category": "Distributed Systems",
     "items": [
+      "System Design",
       "Event-Driven Architecture",
       "Active-Active",
       "Multi-Region",
       "Self-Healing Queues",
       "Rate Limiting",
-      "Job Scheduling"
+      "Job Scheduling",
+      "Microservices"
     ],
     "order": 50
   },
@@ -79,7 +91,15 @@
   {
     "id": "ai",
     "category": "AI Engineering",
-    "items": ["Model Context Protocol", "LLM SDKs", "A2A"],
+    "items": [
+      "Tool / Function Calling",
+      "Agentic Workflows",
+      "Natural-Language Interfaces",
+      "Anthropic API",
+      "Model Context Protocol",
+      "LLM SDKs",
+      "A2A"
+    ],
     "order": 10
   }
 ]
